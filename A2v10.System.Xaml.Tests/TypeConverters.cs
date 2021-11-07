@@ -29,5 +29,23 @@ namespace A2v10.System.Xaml.Tests
 
 		}
 
+		[TestMethod]
+		public void SimpleBoolean()
+		{
+			string xaml = @"
+<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
+	Bold=""True"" Italic=""true"" Underline=""False"" Block=""false"">
+</Button>
+";
+			var obj = XamlServices.Parse(xaml, null);
+
+			Assert.AreEqual(typeof(Button), obj.GetType());
+			var btn = obj as Button;
+			Assert.AreEqual(true, btn.Bold);
+			Assert.AreEqual(true, btn.Italic);
+			Assert.AreEqual(false, btn.Underline);
+			Assert.AreEqual(false, btn.Block);
+
+		}
 	}
 }
