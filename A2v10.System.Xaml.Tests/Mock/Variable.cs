@@ -11,7 +11,7 @@ namespace A2v10.System.Xaml.Tests.Mock
 
 	public class Variable
 	{
-		public String Name { get; set; }
+		public String? Name { get; set; }
 		public VariableType Type { get; set; }
 	}
 }

@@ -9,6 +9,6 @@ namespace A2v10.System.Xaml.Tests.Mock
 	[ContentProperty("Content")]
 	public class Span : UIElementBase
 	{
-		public Object Content { get; set; }
+		public Object? Content { get; set; }
 	}
 }

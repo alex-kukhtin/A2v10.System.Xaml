@@ -6,7 +6,7 @@ namespace A2v10.System.Xaml
 {
 	public static class XamlServices
 	{
-		public static Object Parse(String xaml, XamlServicesOptions options = null)
+		public static Object Parse(String xaml, XamlServicesOptions? options = null)
 		{
 			var xamlReader = new XamlReaderService()
 			{
@@ -15,7 +15,7 @@ namespace A2v10.System.Xaml
 			return xamlReader.ParseXml(xaml);
 		}
 
-		public static Object Load(Stream stream, XamlServicesOptions options = null)
+		public static Object Load(Stream stream, XamlServicesOptions? options = null)
 		{
 			var xamlReader = new XamlReaderService()
 			{
@@ -24,7 +24,7 @@ namespace A2v10.System.Xaml
 			return xamlReader.Load(stream);
 		}
 
-		public static Object Load(XmlReader rdr, XamlServicesOptions options = null)
+		public static Object Load(XmlReader rdr, XamlServicesOptions? options = null)
 		{
 			var xamlReader = new XamlReaderService()
 			{

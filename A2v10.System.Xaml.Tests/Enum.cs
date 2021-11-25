@@ -19,6 +19,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Variable), obj.GetType());
 			var v = obj as Variable;
+			Assert.IsNotNull(v);	
 			Assert.AreEqual("Var0", v.Name);
 			Assert.AreEqual(VariableType.String, v.Type);
 		}
@@ -35,6 +36,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Variable), obj.GetType());
 			var v = obj as Variable;
+			Assert.IsNotNull(v);
 			Assert.AreEqual("Var0", v.Name);
 			Assert.AreEqual(VariableType.String, v.Type);
 		}

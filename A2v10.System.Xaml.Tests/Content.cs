@@ -22,8 +22,10 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Alert), obj.GetType());
 			var p = obj as Alert;
+			Assert.IsNotNull(p);	
 
 			var c = p.Content;
+			Assert.IsNotNull(c);	
 			Assert.AreEqual(typeof(Block), c.GetType());
 		}
 
@@ -39,8 +41,10 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Alert), obj.GetType());
 			var p = obj as Alert;
+			Assert.IsNotNull(p);
 
 			var c = p.Content;
+			Assert.IsNotNull(c);
 			Assert.AreEqual(typeof(String), c.GetType());
 
 			Assert.AreEqual("\n\tI am the text\n", p.Content);

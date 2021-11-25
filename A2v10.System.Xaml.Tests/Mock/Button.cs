@@ -16,8 +16,8 @@ namespace A2v10.System.Xaml.Tests.Mock
 
 	public class Button :  UIElementBase, ISupportInitialize
 	{
-		public String Content { get; set; }
-		public Object Command { get; set; }
+		public String? Content { get; set; }
+		public Object? Command { get; set; }
 
 		public Icon Icon { get; set; }
 

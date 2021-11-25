@@ -20,6 +20,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Button), obj.GetType());
 			var btn = obj as Button;
+			Assert.IsNotNull(btn);
 			Assert.AreEqual("Text", btn.Content);
 			Assert.AreEqual(Icon.File, btn.Icon);
 		}
@@ -36,9 +37,11 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Button), obj.GetType());
 			var btn = obj as Button;
+			Assert.IsNotNull(btn);
 			Assert.AreEqual("Text", btn.Content);
 
 			var cmd = btn.GetBindingCommand("Command");
+			Assert.IsNotNull(cmd);
 			Assert.AreEqual(typeof(BindCmd), cmd.GetType());
 			Assert.AreEqual("Execute", cmd.Command.ToString());
 			Assert.AreEqual("File", cmd.CommandName);
@@ -56,18 +59,22 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Button), obj.GetType());
 			var btn = obj as Button;
+			Assert.IsNotNull(btn);
 			Assert.AreEqual("Text", btn.Content);
 
 			var icon = btn.GetBinding("Icon");
+			Assert.IsNotNull(icon);
 			Assert.AreEqual(typeof(Bind), icon.GetType());
 			Assert.AreEqual("Icon", icon.Path);
 
 			var cmd = btn.GetBindingCommand("Command");
+			Assert.IsNotNull(cmd);
 			Assert.AreEqual(typeof(BindCmd), cmd.GetType());
 			Assert.AreEqual("Execute", cmd.Command.ToString());
 			Assert.AreEqual("File", cmd.CommandName);
 
 			var arg = cmd.GetBinding("Argument");
+			Assert.IsNotNull(arg);
 			Assert.AreEqual(typeof(Bind), arg.GetType());
 			Assert.AreEqual("Text", arg.Path);
 		}
@@ -87,9 +94,11 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Button), obj.GetType());
 			var btn = obj as Button;
+			Assert.IsNotNull(btn);
 			Assert.AreEqual("Text", btn.Content);
 
 			var cmd = btn.GetBindingCommand("Command");
+			Assert.IsNotNull(cmd);
 			Assert.AreEqual(typeof(BindCmd), cmd.GetType());
 			Assert.AreEqual("Execute", cmd.Command.ToString());
 			Assert.AreEqual("File", cmd.CommandName);
@@ -110,9 +119,12 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Page), obj.GetType());
 			var page = obj as Page;
+			Assert.IsNotNull(page);
 			var tb = page.Toolbar as Button;
+			Assert.IsNotNull(tb);
 			Assert.AreEqual(typeof(Button), tb.GetType());
 			var bind = tb.GetBinding("Content");
+			Assert.IsNotNull(bind);
 			Assert.AreEqual("Parent.Pager", bind.Path);
 		}
 	}

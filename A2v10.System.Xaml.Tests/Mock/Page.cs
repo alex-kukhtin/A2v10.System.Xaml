@@ -17,8 +17,8 @@ namespace A2v10.System.Xaml.Tests.Mock
 
 		public ResourceDictionary Resources { get; set; } = new ResourceDictionary();
 
-		public String Title { get; set; }
+		public String? Title { get; set; }
 
-		public UIElementBase Toolbar { get; set; }
+		public UIElementBase? Toolbar { get; set; }
 	}
 }

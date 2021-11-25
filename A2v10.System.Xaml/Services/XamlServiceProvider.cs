@@ -33,18 +33,18 @@ namespace A2v10.System.Xaml
 		}
 
 
-		public object GetService(Type serviceType)
+		public Object GetService(Type serviceType)
 		{
-			if (_services.TryGetValue(serviceType, out Object service))
+			if (_services.TryGetValue(serviceType, out Object? service))
 				return service;
-			return null;
+			throw new XamlException($"Service '{serviceType}' not found");
 		}
 
 		public T GetService<T>()
 		{
-			if (_services.TryGetValue(typeof(T), out Object service))
+			if (_services.TryGetValue(typeof(T), out Object? service))
 				return (T) service;
-			return default;
+			throw new XamlException($"Service '{typeof(T)}' not found");
 		}
 
 		public XamlProvideValueTarget ProvideValueTarget => _provideValueTarget;

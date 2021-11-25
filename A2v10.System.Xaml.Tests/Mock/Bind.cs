@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace A2v10.System.Xaml.Tests.Mock
 {
 
 	public class BindImpl
 	{
-		IDictionary<String, BindBase> _bindings;
+		IDictionary<String, BindBase>? _bindings;
 
 		public BindBase SetBinding(String name, BindBase bind)
 		{
@@ -29,11 +24,11 @@ namespace A2v10.System.Xaml.Tests.Mock
 				_bindings.Remove(name);
 		}
 
-		public Bind GetBinding(String name)
+		public Bind? GetBinding(String name)
 		{
 			if (_bindings == null)
 				return null;
-			if (_bindings.TryGetValue(name, out BindBase bind))
+			if (_bindings.TryGetValue(name, out BindBase? bind))
 			{
 				if (bind is Bind)
 					return bind as Bind;
@@ -42,11 +37,11 @@ namespace A2v10.System.Xaml.Tests.Mock
 			return null;
 		}
 
-		public BindCmd GetBindingCommand(String name)
+		public BindCmd? GetBindingCommand(String name)
 		{
 			if (_bindings == null)
 				return null;
-			if (_bindings.TryGetValue(name, out BindBase bind))
+			if (_bindings.TryGetValue(name, out BindBase? bind))
 			{
 				if (bind is BindCmd)
 					return bind as BindCmd;
@@ -59,25 +54,14 @@ namespace A2v10.System.Xaml.Tests.Mock
 
 	public abstract class BindBase : MarkupExtension, ISupportBinding
 	{
-		BindImpl _bindImpl;
+		public BindImpl BindImpl { get; } = new();
 
-		public BindImpl BindImpl
-		{
-			get
-			{
-				if (_bindImpl == null)
-					_bindImpl = new BindImpl();
-				return _bindImpl;
-			}
-		}
-
-		public override Object ProvideValue(IServiceProvider serviceProvider)
+		public override Object? ProvideValue(IServiceProvider serviceProvider)
 		{
 			if (serviceProvider.GetService(typeof(IProvideValueTarget)) is not IProvideValueTarget iTarget)
 				return null;
-			var targetProp = iTarget.TargetProperty as PropertyInfo;
-			var targetObj = iTarget.TargetObject as ISupportBinding;
-			if ((targetObj == null) && (targetProp == null))
+			if (iTarget.TargetProperty is not PropertyInfo targetProp ||
+				iTarget.TargetObject is not ISupportBinding targetObj)
 				return null;
 			targetObj.BindImpl.SetBinding(targetProp.Name, this);
 			if (targetProp.PropertyType.IsValueType)
@@ -85,9 +69,9 @@ namespace A2v10.System.Xaml.Tests.Mock
 			return null; // is object
 		}
 
-		public Bind GetBinding(String name)
+		public Bind? GetBinding(String name)
 		{
-			return _bindImpl?.GetBinding(name);
+			return BindImpl.GetBinding(name);
 		}
 
 		/*
@@ -97,18 +81,18 @@ namespace A2v10.System.Xaml.Tests.Mock
 		}
 		*/
 
-		public BindCmd GetBindingCommand(String name)
+		public BindCmd? GetBindingCommand(String name)
 		{
-			return _bindImpl?.GetBindingCommand(name);
+			return BindImpl.GetBindingCommand(name);
 		}
 	}
 
 	public class Bind : BindBase, ISupportInitialize
 	{
-		public String Path { get; set; }
-		public String Format { get; set; }
+		public String? Path { get; set; }
+		public String? Format { get; set; }
 		public Boolean HideZeros { get; set; }
-		public String Mask { get; set; }
+		public String? Mask { get; set; }
 		public Boolean NegativeRed { get; set; }
 
 		public Bind()

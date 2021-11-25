@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
-		<LangVersion>9.0</LangVersion>
-		<AssemblyVersion>10.1.8007.0</AssemblyVersion>
-		<FileVersion>10.1.8007.0</FileVersion>
-		<Version>10.1.8007</Version>
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>10.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<Version>10.1.8010</Version>
 		<Product>A2v10</Product>
 		<Authors>Alex Kukthin</Authors>
 		<Copyright>Copyright © 2020-2021 Alex Kukhtin. All rights reserved.</Copyright>
@@ -21,6 +20,6 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference  Include = "Microsoft.SourceLink.GitHub"  Version = "1.0.0"  PrivateAssets = "All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
 </Project>

@@ -19,6 +19,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Element), obj.GetType());
 			var v = obj as Element;
+			Assert.IsNotNull(v);
 			Assert.AreEqual("String", v.StringValue);
 			Assert.AreEqual(55, v.Int32Value);
 			Assert.AreEqual(24.3, v.DoubleValue);
@@ -36,6 +37,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Element), obj.GetType());
 			var v = obj as Element;
+			Assert.IsNotNull(v);
 			Assert.AreEqual("String", v.StringValue);
 			Assert.AreEqual(55, v.Int32Nullable);
 			Assert.AreEqual(24.3, v.DoubleValue);
@@ -54,6 +56,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Element), obj.GetType());
 			var v = obj as Element;
+			Assert.IsNotNull(v);
 			Assert.AreEqual("String", v.StringValue);
 			Assert.AreEqual(55, v.Int32Value);
 		}
@@ -76,6 +79,7 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Element), obj.GetType());
 			var v = obj as Element;
+			Assert.IsNotNull(v);
 			Assert.AreEqual("String", v.StringValue);
 			Assert.AreEqual(55, v.Int32Value);
 		}

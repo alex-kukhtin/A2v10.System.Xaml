@@ -25,10 +25,11 @@ namespace A2v10.System.Xaml.Tests
 
 			Assert.AreEqual(typeof(Page), obj.GetType());
 			var p = obj as Page;
-
+			Assert.IsNotNull(p);
 			var strVal = p.Resources["StrVal"];
 			Assert.AreEqual("StringValue", strVal);
 			var btn = p.Resources["Button"] as Button;
+			Assert.IsNotNull(btn);
 			Assert.AreEqual("Click", btn.Content);
 		}
 	}
