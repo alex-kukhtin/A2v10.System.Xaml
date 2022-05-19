@@ -3,14 +3,14 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<LangVersion>10.0</LangVersion>
 		<Nullable>enable</Nullable>
-		<Version>10.1.8010</Version>
+		<Version>10.1.8011</Version>
 		<Product>A2v10</Product>
-		<Authors>Alex Kukthin</Authors>
-		<Copyright>Copyright © 2020-2021 Alex Kukhtin. All rights reserved.</Copyright>
+		<Authors>Oleksandr Kukthin</Authors>
+		<Copyright>Copyright © 2020-2022 Oleksandr Kukhtin. All rights reserved.</Copyright>
 		<Description>Simple lightweight and fast Xaml Reader for A2v10.Platform.</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/alex-kukhtin/A2v10.System.Xaml</RepositoryUrl>
-		<RepositoryType>github</RepositoryType>
+		<RepositoryType>git</RepositoryType>
 		<PackageTags>A2v10 Xaml</PackageTags>
 	</PropertyGroup>
 	<PropertyGroup>
@@ -18,6 +18,7 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
