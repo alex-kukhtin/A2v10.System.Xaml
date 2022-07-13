@@ -336,11 +336,13 @@ public class NodeBuilder
 			obj = nd.ConstructorService(_serviceProvider);
 		else if (nd.Constructor != null)
 			obj = nd.Constructor();
+		else if (node.IsSimpleContent)
+			return Convert.ChangeType(node.SimpleContent, nd.NodeType); // Simple string ????
 		else
-			return Convert.ChangeType(node.TextContent, nd.NodeType); // Simple string ????
+			throw new XamlException("Invalid build node argument");
 
-		if (!String.IsNullOrEmpty(node.TextContent))
-			nd.SetTextContent(obj, node.TextContent);
+		if (node.IsSimpleContent)
+			nd.SetTextContent(obj, node.SimpleContent);
 
 		foreach (var (propKey, propValue) in node.Properties)
 		{
@@ -359,8 +361,12 @@ public class NodeBuilder
 		{
 			foreach (var ch in node.Children.Value)
 			{
-				var chObj = BuildNode(ch);
-				if(chObj != null)
+				Object? chObj;
+				if (ch is XamlTextContent chXaml)
+					chObj = chXaml.Text;
+				else
+					chObj = BuildNode(ch);
+				if (chObj != null)
 					nd.AddChildren(obj, chObj, ch);
 			}
 		}

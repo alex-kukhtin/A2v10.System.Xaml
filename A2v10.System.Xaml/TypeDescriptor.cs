@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Alex Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2022 Alex Kukhtin. All rights reserved.
 
 using System.Linq;
 using System.Collections;
@@ -69,7 +69,7 @@ public class TypeDescriptor
 			propInfo.SetValue(instance, val);
 	}
 
-	public void SetTextContent(Object instance, String content)
+	public void SetTextContent(Object instance, String? content)
 	{
 		if (ContentProperty == null)
 			throw new XamlException($"ContentProperty not found in type {TypeName}");

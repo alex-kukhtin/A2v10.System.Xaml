@@ -41,14 +41,14 @@ public class ExtensionParser
 
 	private XamlNode? _node;
 
-	TokenType _tokenType;
-	Int32 _tokenStart;
-	Int32 _tokenLen;
+	private TokenType _tokenType;
+	private Int32 _tokenStart;
+	private Int32 _tokenLen;
 
 	private State _state;
-	String? _propertyName;
+	private String? _propertyName;
 
-	String TokenValue => _text.Substring(_tokenStart, _tokenLen);
+	private String TokenValue => _text.Substring(_tokenStart, _tokenLen);
 
 	private ExtensionParser(NodeBuilder builder, String text)
 	{
