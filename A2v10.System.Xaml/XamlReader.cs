@@ -1,5 +1,6 @@
 ﻿// Copyright © 2021 Alex Kukhtin. All rights reserved.
 
+using System.ComponentModel;
 using System.Xml;
 
 namespace A2v10.System.Xaml;
@@ -50,6 +51,8 @@ public class XamlReader
 			throw new XamlException("Root node not found");
 		_xamlServiceProvider.SetRoot(node);
 		nodeBuilder.ExecuteDeferred();
+		if (node is IInitComplete init)
+			init.InitComplete();
 		return node;
 	}
 

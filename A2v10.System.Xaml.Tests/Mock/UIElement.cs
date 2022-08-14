@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 
 namespace A2v10.System.Xaml.Tests.Mock;
-public class UIElementBase : ISupportBinding
+public class UIElementBase : ISupportBinding, ISupportInitialize
 {
 	public Boolean? Show { get; set; }
 	public Boolean? If { get; set; }
@@ -23,6 +23,17 @@ public class UIElementBase : ISupportBinding
 	public BindCmd? GetBindingCommand(String name)
 	{
 		return _bindImpl.GetBindingCommand(name);
+	}
+	#endregion
+
+
+	# region ISupportInitialize
+	public void BeginInit()
+	{
+	}
+
+	public void EndInit()
+	{
 	}
 	#endregion
 }
