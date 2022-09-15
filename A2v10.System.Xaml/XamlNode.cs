@@ -51,11 +51,8 @@ public class XamlNode
 			var parts = node.Name.Split(".");
 			if (parts.Length != 2)
 				throw new XamlException($"Invalid attribute name '{node.Name}'");
-			if (parts[0] == this.Name)
-			{
-				// nested property
-				AddProperty(builder, parts[1], node);
-			}
+			// nested property
+			AddProperty(builder, parts[1], node);
 		}
 		else
 		{
@@ -76,13 +73,32 @@ public class XamlNode
 	}
 
 
+	public Boolean IsNestedProperty(XamlNode node, Type nodeType)
+	{
+		if (node.Name.IndexOf('.') == -1)
+			return false;
+		var split = node.Name.Split('.');
+		if (split.Length != 2)
+			throw new XamlException($"Invalid property name {node.Name}");
+		// firts part is class or base class
+		var className = split[0];
+		var bt = nodeType;
+		while (bt != null)
+		{
+			if (className == bt.Name)
+				return true;
+			bt = bt.BaseType;
+		}
+		return false;
+	}
+
 	public void AddProperty(NodeBuilder builder, String name, XamlNode node)
 	{
 		var td = builder.GetNodeDescriptor(Name);
 		if (td == null)
 			return;
 		Object? propValue;
-		if (node.Name == $"{Name}.{name}")
+		if (IsNestedProperty(node, td.NodeType))
 			propValue = td.BuildNestedProperty(builder, td.MakeName(name), node);
 		else
 			propValue = builder.BuildNode(node);
