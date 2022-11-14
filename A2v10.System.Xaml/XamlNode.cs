@@ -73,9 +73,9 @@ public class XamlNode
 	}
 
 
-	public Boolean IsNestedProperty(XamlNode node, Type nodeType)
+	public static Boolean IsNestedProperty(XamlNode node, Type nodeType)
 	{
-		if (node.Name.IndexOf('.') == -1)
+		if (!node.Name.Contains('.'))
 			return false;
 		var split = node.Name.Split('.');
 		if (split.Length != 2)
