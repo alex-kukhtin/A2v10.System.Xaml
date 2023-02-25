@@ -46,9 +46,8 @@ public class XamlReader
 		else if (_root.Children.Value.Count > 1)
 			throw new XamlException("Invalid Xaml structure");
 		var r = _root.Children.Value[0];
-		var node = nodeBuilder.BuildNode(r);
-		if (node == null)
-			throw new XamlException("Root node not found");
+		var node = nodeBuilder.BuildNode(r) 
+			?? throw new XamlException("Root node not found");
 		_xamlServiceProvider.SetRoot(node);
 		nodeBuilder.ExecuteDeferred();
 		if (node is IInitComplete init)

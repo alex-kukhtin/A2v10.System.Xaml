@@ -130,9 +130,8 @@ public class NodeBuilder
 			var conv = propType.GetCustomAttribute<TypeConverterAttribute>();
 			if (conv != null)
 			{
-				var descrType = Type.GetType(conv.ConverterTypeName);
-				if (descrType == null)
-					throw new XamlException($"Invalid converter {conv.ConverterTypeName}");
+				var descrType = Type.GetType(conv.ConverterTypeName) 
+					?? throw new XamlException($"Invalid converter {conv.ConverterTypeName}");
 				typeConverter = Activator.CreateInstance(descrType) as TypeConverter;
 			}
 		}
@@ -153,9 +152,8 @@ public class NodeBuilder
 		if (!_namespaces.TryGetValue(namePair.Prefix, out NamespaceDefinition? nsd))
 			throw new XamlException($"Namespace {namePair.Namespace} not found");
 		String typeName = $"{namePair.Namespace}.{namePair.ClassName}";
-		var nodeType = nsd.Assembly.GetType(typeName);
-		if (nodeType == null)
-			throw new XamlException($"Class {namePair.Namespace}.{namePair.ClassName} not found");
+		var nodeType = nsd.Assembly.GetType(typeName) 
+			?? throw new XamlException($"Class {namePair.Namespace}.{namePair.ClassName} not found");
 		Func<Object>? constructor = null;
 		Func<String, Object>? constructorStr = null;
 		Func<IServiceProvider, Object>? constructorService = null;
@@ -190,9 +188,8 @@ public class NodeBuilder
 
 		if (contentProperty != null)
 		{
-			var contProp = props.Where(x => x.Name == contentProperty).FirstOrDefault();
-			if (contProp == null)
-				throw new XamlException($"Property {contentProperty} not found in type {typeName}");
+			var contProp = props.Where(x => x.Name == contentProperty).FirstOrDefault() 
+				?? throw new XamlException($"Property {contentProperty} not found in type {typeName}");
 			var collMethods = LambdaHelper.AddCollectionMethods(contProp.PropertyType);
 			addCollection = collMethods.AddCollection;
 			addDictionary = collMethods.AddDictionary;
@@ -235,10 +232,8 @@ public class NodeBuilder
 			var pName = prop.Trim();
 			var elem = Expression.Parameter(typeof(Object));
 			var val = Expression.Parameter(typeof(Object));
-			var mtd = nodeType.GetMethod($"Set{pName}", BindingFlags.Static | BindingFlags.Public);
-			if (mtd == null)
-				throw new XamlException($"Invalid attached property {prop} for type {nodeType}");
-				
+			var mtd = nodeType.GetMethod($"Set{pName}", BindingFlags.Static | BindingFlags.Public) 
+				?? throw new XamlException($"Invalid attached property {prop} for type {nodeType}");
 			var args = mtd.GetParameters();
 			var propValueType = args[1].ParameterType;
 			TypeConverter? typeConverter = null;
@@ -258,9 +253,8 @@ public class NodeBuilder
 			var tcAttr = propValueType.GetCustomAttribute<TypeConverterAttribute>();
 			if (tcAttr != null)
 			{
-				var convType = Type.GetType(tcAttr.ConverterTypeName);
-				if (convType == null)
-					throw new XamlException($"Converter type '{tcAttr.ConverterTypeName}' not found");
+				var convType = Type.GetType(tcAttr.ConverterTypeName) 
+					?? throw new XamlException($"Converter type '{tcAttr.ConverterTypeName}' not found");
 				typeConverter = Activator.CreateInstance(convType) as TypeConverter;
 			}
 
