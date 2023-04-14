@@ -118,9 +118,18 @@ public class XamlNode
 			var td = builder.GetNodeDescriptor(Name);
 			if (td == null)
 				return;
-			if (value != null && value.StartsWith("{") && value.EndsWith("}") && builder.EnableMarkupExtensions)
-				Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(td.MakeName(prop.Name)), builder.ParseExtension(value)));
-			else if (value != null)
+			if (value == null)
+				return;
+			if (builder.EnableMarkupExtensions)
+			{
+				if (value.StartsWith("{}"))
+					Properties.Add(td.MakeName(prop.Name), value.Substring(2)); // escape {}
+				else if (value.StartsWith("{") && value.EndsWith("}"))
+					Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(td.MakeName(prop.Name)), builder.ParseExtension(value)));
+				else
+					Properties.Add(td.MakeName(prop.Name), value);
+			}
+			else
 				Properties.Add(td.MakeName(prop.Name), value);
 		}
 	}

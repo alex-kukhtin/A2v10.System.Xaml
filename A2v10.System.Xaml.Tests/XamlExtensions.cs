@@ -27,6 +27,23 @@ public class ReadExtensions
 	}
 
 	[TestMethod]
+	public void EscapeBraces()
+	{
+		string xaml = @"
+<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
+	Content=""Text"" Command=""{}{Text in braces}"">
+</Button>
+";
+		var obj = XamlServices.Parse(xaml, null);
+
+		Assert.AreEqual(typeof(Button), obj.GetType());
+		var btn = obj as Button;
+		Assert.IsNotNull(btn);
+		Assert.AreEqual("Text", btn.Content);
+		Assert.AreEqual("{Text in braces}", btn.Command);
+	}
+
+	[TestMethod]
 	public void Binding()
 	{
 		string xaml = @"
