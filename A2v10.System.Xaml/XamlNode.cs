@@ -123,7 +123,7 @@ public class XamlNode
 			if (builder.EnableMarkupExtensions)
 			{
 				if (value.StartsWith("{}"))
-					Properties.Add(td.MakeName(prop.Name), value.Substring(2)); // escape {}
+					Properties.Add(td.MakeName(prop.Name), value[2..]); // escape {}
 				else if (value.StartsWith("{") && value.EndsWith("}"))
 					Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(td.MakeName(prop.Name)), builder.ParseExtension(value)));
 				else
@@ -156,10 +156,9 @@ public class XamlNode
 				var aps = ap.Name.Split('.');
 				if (aps.Length != 2)
 					continue;
-				var elemDescr = builder.GetNodeDescriptor(aps[0]);
-				if (elemDescr == null)
-					throw new XamlException($"Element descriptor not found {aps[0]}");
-				elemDescr.SetAttachedPropertyValue(aps[1], target, ap.Value);
+				var elemDescr = builder.GetNodeDescriptor(aps[0]) 
+					?? throw new XamlException($"Element descriptor not found {aps[0]}");
+                elemDescr.SetAttachedPropertyValue(aps[1], target, ap.Value);
 			}
 		}
 	}

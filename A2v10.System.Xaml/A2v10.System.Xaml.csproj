@@ -3,7 +3,7 @@
 		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 		<LangVersion>10.0</LangVersion>
 		<Nullable>enable</Nullable>
-		<Version>10.1.8018</Version>
+		<Version>10.1.8020</Version>
 		<Product>A2v10</Product>
 		<Authors>Oleksandr Kukthin</Authors>
 		<Copyright>Copyright © 2020-2023 Oleksandr Kukhtin. All rights reserved.</Copyright>
@@ -12,6 +12,8 @@
 		<RepositoryUrl>https://github.com/alex-kukhtin/A2v10.System.Xaml</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>A2v10 Xaml</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<PropertyGroup>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -23,5 +25,9 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

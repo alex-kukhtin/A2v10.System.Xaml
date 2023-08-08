@@ -1,6 +1,5 @@
-﻿// Copyright © 2021 Alex Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2023 Oleksandr Kukhtin. All rights reserved.
 
-using System.ComponentModel;
 using System.Xml;
 
 namespace A2v10.System.Xaml;
@@ -76,6 +75,9 @@ public class XamlReader
 				break;
 			case XmlNodeType.XmlDeclaration:
 				AddDeclaration();
+				break;
+			case XmlNodeType.CDATA:
+				AddContent();
 				break;
 		}
 	}

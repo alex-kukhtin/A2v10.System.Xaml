@@ -14,8 +14,9 @@ namespace A2v10.System.Xaml.Tests.Mock
 	[ContentProperty("Children")]
 	public class Page : Container
 	{
+        public String? Code { get; init; }
 
-		public ResourceDictionary Resources { get; set; } = new ResourceDictionary();
+        public ResourceDictionary Resources { get; set; } = new ResourceDictionary();
 
 		public String? Title { get; set; }
 
