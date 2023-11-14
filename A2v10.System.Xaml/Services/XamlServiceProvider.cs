@@ -5,7 +5,7 @@ namespace A2v10.System.Xaml;
 
 public class XamlServiceProvider : IServiceProvider
 {
-	private readonly Dictionary<Type, Object> _services = new ();
+	private readonly Dictionary<Type, Object> _services = [];
 	private readonly XamlProvideValueTarget _provideValueTarget = new();
 	private readonly XamlRootObjectProvider _rootObjectProvider = new();
 	private readonly XamlAttachedPropertyManager _attachedPropertyManager = new();

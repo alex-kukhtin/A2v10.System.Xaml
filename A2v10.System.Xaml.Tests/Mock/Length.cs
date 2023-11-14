@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Alex Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2023 Oleksandr Kukhtin. All rights reserved.
 
 using System.ComponentModel;
 using System.Globalization;
@@ -25,7 +25,7 @@ public record Length
 
 	internal static Boolean IsValidLength(String strVal)
 	{
-		return (strVal.EndsWith("%") ||
+		return (strVal.EndsWith('%') ||
 				strVal.EndsWith("px") ||
 				strVal.EndsWith("vh") ||
 				strVal.EndsWith("vw") ||

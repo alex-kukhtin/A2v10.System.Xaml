@@ -31,7 +31,7 @@ public class CreateExtensions
 		Assert.AreEqual("File", cmd.CommandName);
 	}
 
-	public void BindingHelper()
+	public static void BindingHelper()
 	{
 
 		var obj = BindHelpers.CreateElement(

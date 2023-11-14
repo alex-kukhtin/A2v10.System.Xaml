@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Alex Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2023 Oleksandr Kukhtin. All rights reserved.
 
 namespace A2v10.System.Xaml;
 public class XamlAttachedPropertyManager : IAttachedPropertyManager
@@ -6,7 +6,7 @@ public class XamlAttachedPropertyManager : IAttachedPropertyManager
 
 	public record PropertyDef(String Name, Object Value);
 
-	private readonly Dictionary<PropertyDef, Object> _map = new();
+	private readonly Dictionary<PropertyDef, Object> _map = [];
 
 	public void SetProperty(String propName, Object obj, Object value)
 	{

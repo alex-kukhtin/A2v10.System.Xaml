@@ -1,17 +1,9 @@
-﻿// Copyright © 2021 Alex Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2023 Oleksandr Kukhtin. All rights reserved.
 
-using System;
+namespace A2v10.System.Xaml;
 
-namespace A2v10.System.Xaml
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class ContentPropertyAttribute(String name) : Attribute
 {
-	[AttributeUsage(AttributeTargets.Class)]
-	public sealed class ContentPropertyAttribute : Attribute
-	{
-		public String Name { get; }
-
-		public ContentPropertyAttribute(String name)
-		{
-			Name = name;
-		}
-	}
-}
+        public String Name { get; } = name;
+    }

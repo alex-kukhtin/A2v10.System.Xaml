@@ -23,8 +23,7 @@ public class BindImpl
 
 	public BindBase SetBinding(String name, BindBase bind)
 	{
-		if (_bindings == null)
-			_bindings = new Dictionary<String, BindBase>();
+		_bindings ??= new Dictionary<String, BindBase>();
 		_bindings.Add(name, bind);
 		return bind;
 	}

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace A2v10.System.Xaml.Tests.Mock;
 
@@ -17,7 +13,7 @@ public class InlineCollection : List<Object>
 [ContentProperty("Inlines")]
 public class Text : UIElementBase
 {
-	public InlineCollection Inlines { get; set; } = new InlineCollection();
+	public InlineCollection Inlines { get; set; } = [];
 }
 
 public class InlineCollectionConverter : TypeConverter
@@ -37,8 +33,10 @@ public class InlineCollectionConverter : TypeConverter
 			return null;
 		if (value is String strVal)
 		{
-			var coll = new InlineCollection();
-			coll.Add(new Span() { Content = strVal });
+			var coll = new InlineCollection
+            {
+                new Span() { Content = strVal }
+            };
 			return coll;
 		}
 		throw new XamlException($"Invalid length value '{value}'");
