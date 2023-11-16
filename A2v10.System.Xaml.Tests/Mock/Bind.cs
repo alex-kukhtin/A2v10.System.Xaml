@@ -19,11 +19,11 @@ public static class BindHelpers
 
 public class BindImpl
 {
-	IDictionary<String, BindBase>? _bindings;
+	Dictionary<String, BindBase>? _bindings;
 
 	public BindBase SetBinding(String name, BindBase bind)
 	{
-		_bindings ??= new Dictionary<String, BindBase>();
+		_bindings ??= [];
 		_bindings.Add(name, bind);
 		return bind;
 	}

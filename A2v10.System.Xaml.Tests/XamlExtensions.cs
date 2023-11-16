@@ -1,4 +1,4 @@
-// Copyright © 2022 Alex Kukhtin. All rights reserved.
+// Copyright © 2022 Oleksandr Kukhtin. All rights reserved.
 
 using A2v10.System.Xaml.Tests.Mock;
 

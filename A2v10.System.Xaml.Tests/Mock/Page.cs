@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+namespace A2v10.System.Xaml.Tests.Mock;
 
-namespace A2v10.System.Xaml.Tests.Mock
+public class ResourceDictionary : Dictionary<String, Object>
 {
-	public class ResourceDictionary : Dictionary<String, Object>
-	{
 
-	}
+}
 
-	[ContentProperty("Children")]
-	public class Page : Container
-	{
+[ContentProperty("Children")]
+public class Page : Container
+{
         public String? Code { get; init; }
 
-        public ResourceDictionary Resources { get; set; } = new ResourceDictionary();
+        public ResourceDictionary Resources { get; set; } = [];
 
-		public String? Title { get; set; }
+	public String? Title { get; set; }
 
-		public UIElementBase? Toolbar { get; set; }
-	}
+	public UIElementBase? Toolbar { get; set; }
 }
