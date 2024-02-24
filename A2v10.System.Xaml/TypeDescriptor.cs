@@ -1,25 +1,17 @@
-﻿// Copyright © 2021-2022 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2024 Oleksandr Kukhtin. All rights reserved.
 
 using System.Linq;
 using System.Collections;
 using System.Reflection;
 
 namespace A2v10.System.Xaml;
-public class TypeDescriptor
+public class TypeDescriptor(Type nodeType, String typeName,
+	Dictionary<String, PropertyDescriptor> props, Func<XamlNode, Object?> buildNode)
 {
-	public TypeDescriptor(Type nodeType, String typeName,
-		Dictionary<String, PropertyDescriptor> props, Func<XamlNode, Object?> buildNode)
-    {
-		NodeType = nodeType;
-		TypeName = typeName;
-		Properties = props;
-		BuildNode = buildNode;
-    }
-
-	public String TypeName {get;}
-	public Type NodeType { get; }
-	public Dictionary<String, PropertyDescriptor> Properties { get; }
-	public Func<XamlNode, Object?> BuildNode { get; }
+	public String TypeName { get; } = typeName;
+	public Type NodeType { get; } = nodeType;
+	public Dictionary<String, PropertyDescriptor> Properties { get; } = props;
+	public Func<XamlNode, Object?> BuildNode { get; } = buildNode;
 
 	public Func<Object>? Constructor { get; init; }
 	public Func<String, Object>? ConstructorString { get; init; }

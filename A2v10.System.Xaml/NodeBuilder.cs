@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2024 Oleksandr Kukhtin. All rights reserved.
 
 using System.Linq;
 using System.Linq.Expressions;
@@ -43,36 +43,33 @@ public record NamespaceDefinition
 
 public record ClassNamePair(String Prefix, String Namespace, String ClassName, Boolean IsCamelCase);
 
-public class NodeBuilder
+public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescriptorCache typeCache, XamlServicesOptions? options)
 {
 
-	private readonly Dictionary<String, NamespaceDefinition> _namespaces = new();
-	private readonly XamlServicesOptions? _options;
-	private readonly XamlServiceProvider _serviceProvider;
-	private readonly TypeDescriptorCache _typeCache;
-
+	private readonly Dictionary<String, NamespaceDefinition> _namespaces = [];
 	private readonly Lazy<List<Action>> _deferExec = new();
-
-	public NodeBuilder(XamlServiceProvider serviceProvider, TypeDescriptorCache typeCache, XamlServicesOptions? options)
-	{
-		_serviceProvider = serviceProvider;
-		_typeCache = typeCache;
-		_options = options;
-	}
 
 	NamespaceDef? IsCustomNamespace(String value)
 	{
-		if (_options == null || _options.Namespaces == null)
+		if (options == null || options.Namespaces == null)
 			return null;
 		value = value.ToLowerInvariant();
-		return _options.Namespaces.FirstOrDefault(x => x.Name == value);
+		return options.Namespaces.FirstOrDefault(x => x.Name == value);
 	}
 
-	public Boolean EnableMarkupExtensions => _options == null || !_options.DisableMarkupExtensions;
+	public Boolean EnableMarkupExtensions => options == null || !options.DisableMarkupExtensions;
 
-	public IAttachedPropertyManager AttachedPropertyManager => _serviceProvider.GetService<IAttachedPropertyManager>();
+	public IAttachedPropertyManager AttachedPropertyManager => serviceProvider.GetService<IAttachedPropertyManager>();
 
-	private static readonly Regex _namespaceRegEx = new(@"^\s*clr-namespace\s*:\s*([\w\.]+)\s*;\s*assembly\s*=\s*([\w\.]+)\s*$", RegexOptions.Compiled);
+
+	const String NS_PATTERN = @"^\s*clr-namespace\s*:\s*([\w\.]+)\s*;\s*assembly\s*=\s*([\w\.]+)\s*$";
+#if NET7_0_OR_GREATER
+	[GeneratedRegex(NS_PATTERN, RegexOptions.None, "en-US")]
+	private static partial Regex NsRegex();
+#else
+	private static Regex NSREGEX => new(NS_PATTERN, RegexOptions.Compiled);
+	private static Regex NsRegex() => NSREGEX;
+#endif
 
 	public void AddNamespace(String prefix, String value)
 	{
@@ -95,7 +92,7 @@ public class NodeBuilder
 			_namespaces.Add(prefix, nsd);
 			return;
 		}
-		var match = _namespaceRegEx.Match(value);
+		var match = NsRegex().Match(value);
 		if (match.Groups.Count == 3)
 		{
 			var assemblyName = match.Groups[2].Value.Trim();
@@ -122,7 +119,7 @@ public class NodeBuilder
 
 		if (propType != typeof(String))
 		{
-			var propCtor = propType.GetConstructor(Array.Empty<Type>());
+			var propCtor = propType.GetConstructor([]);
 			if (propCtor != null)
 				ctor = Expression.Lambda<Func<Object>>(
 					Expression.New(propCtor)
@@ -157,10 +154,10 @@ public class NodeBuilder
 		Func<Object>? constructor = null;
 		Func<String, Object>? constructorStr = null;
 		Func<IServiceProvider, Object>? constructorService = null;
-		var ctor0 = nodeType.GetConstructor(Array.Empty<Type>());
+		var ctor0 = nodeType.GetConstructor([]);
 		if (ctor0 != null)
 			constructor = Expression.Lambda<Func<Object>>(Expression.New(nodeType)).Compile();
-		var ctorStr = nodeType.GetConstructor(new Type[] { typeof(String) });
+		var ctorStr = nodeType.GetConstructor([typeof(String)]);
 		if (ctorStr != null)
 		{
 			var prm = Expression.Parameter(typeof(String));
@@ -169,7 +166,7 @@ public class NodeBuilder
 				prm
 			).Compile();
 		}
-		var ctorService = nodeType.GetConstructor(new Type[] { typeof(IServiceProvider) });
+		var ctorService = nodeType.GetConstructor([typeof(IServiceProvider)]);
 		if (ctorService != null)
 		{
 			var prm = Expression.Parameter(typeof(IServiceProvider));
@@ -302,7 +299,7 @@ public class NodeBuilder
 				Namespace: nsd.Namespace, 
 				ClassName: CheckAlias(typeName), 
 				IsCamelCase: nsd.IsCamelCase);
-			return _typeCache.GetOrAdd(className, BuildTypeDescriptor);
+			return typeCache.GetOrAdd(className, BuildTypeDescriptor);
 		}
 		else
 			throw new XamlException($"Namespace '{nsKey}' not found");
@@ -310,9 +307,9 @@ public class NodeBuilder
 
 	String CheckAlias(String name)
 	{
-		if (_options == null || _options.Aliases == null)
+		if (options == null || options.Aliases == null)
 			return name;
-		if (_options.Aliases.TryGetValue(name, out String? outName))
+		if (options.Aliases.TryGetValue(name, out String? outName))
 			return outName;
 		return name;
 	}
@@ -327,7 +324,7 @@ public class NodeBuilder
 		if (node.ConstructorArgument != null && nd.ConstructorString != null)
 			obj = nd.ConstructorString(node.ConstructorArgument);
 		else if (nd.ConstructorService != null)
-			obj = nd.ConstructorService(_serviceProvider);
+			obj = nd.ConstructorService(serviceProvider);
 		else if (nd.Constructor != null)
 			obj = nd.Constructor();
 		else if (node.IsSimpleContent)
@@ -387,14 +384,14 @@ public class NodeBuilder
 	{
 		if (elems == null || elems.Count == 0)
 			return;
-		var valueTarget = _serviceProvider.ProvideValueTarget;
+		var valueTarget = serviceProvider.ProvideValueTarget;
 		foreach (var ext in elems)
 		{
 			_deferExec.Value.Add(() =>
 			{
 				valueTarget.TargetObject = target;
 				valueTarget.TargetProperty = ext.PropertyInfo;
-				var val = ext.Element.ProvideValue(_serviceProvider);
+				var val = ext.Element.ProvideValue(serviceProvider);
 				if (val != null)
 					ext.PropertyInfo.SetValue(target, val);
 			});

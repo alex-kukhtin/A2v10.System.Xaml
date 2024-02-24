@@ -31,6 +31,30 @@ public class CreateExtensions
 		Assert.AreEqual("File", cmd.CommandName);
 	}
 
+	[TestMethod]
+	public void BindingT()
+	{
+		var btn = BindHelpers.CreateElement<Button>(bi =>
+			bi.SetBinding("Command", new BindCmd()
+			{
+				Command = CommandType.Execute,
+				CommandName = "Test"
+			})
+		);
+		btn.Content = "Text";	
+
+		Assert.IsNotNull(btn);
+		Assert.AreEqual("Text", btn.Content);
+
+		var cmd = btn.GetBindingCommand("Command");
+		Assert.IsNotNull(cmd);
+		Assert.AreEqual("Text", btn.Content);
+		Assert.AreEqual(typeof(BindCmd), cmd.GetType());
+		Assert.AreEqual("Execute", cmd.Command.ToString());
+		Assert.AreEqual("Test", cmd.CommandName);
+	}
+
+
 	public static void BindingHelper()
 	{
 

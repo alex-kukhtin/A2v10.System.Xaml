@@ -1,4 +1,4 @@
-﻿// Copyright © 2021-2022 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2024 Oleksandr Kukhtin. All rights reserved.
 
 using System.Reflection;
 
@@ -7,20 +7,16 @@ namespace A2v10.System.Xaml;
 public record XamlExtensionElem(PropertyInfo PropertyInfo, MarkupExtension Element);
 public record XamlAttachedElem(String Name, Object Value);
 
-public class XamlNode
+public class XamlNode(String name)
 {
-	public XamlNode(String name)
-	{
-		Name = name;
-	}
-	public String Name { get; }
+	public String Name { get; } = name;
 	public String? ConstructorArgument => _ctorArgument;
 
 	private String? _ctorArgument;
 
 	public Lazy<List<XamlNode>> Children = new();
-	public readonly Dictionary<String, Object> Properties = new();
-	public readonly List<XamlExtensionElem> Extensions = new();
+	public readonly Dictionary<String, Object> Properties = [];
+	public readonly List<XamlExtensionElem> Extensions = [];
 	public readonly Lazy<List<XamlAttachedElem>> AttachedProperties = new();
 
 	public Boolean HasChildren => Children.IsValueCreated && Children.Value.Count > 0 && !IsSimpleContent;
@@ -124,7 +120,7 @@ public class XamlNode
 			{
 				if (value.StartsWith("{}"))
 					Properties.Add(td.MakeName(prop.Name), value[2..]); // escape {}
-				else if (value.StartsWith("{") && value.EndsWith("}"))
+				else if (value.StartsWith('{') && value.EndsWith('}'))
 					Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(td.MakeName(prop.Name)), builder.ParseExtension(value)));
 				else
 					Properties.Add(td.MakeName(prop.Name), value);
