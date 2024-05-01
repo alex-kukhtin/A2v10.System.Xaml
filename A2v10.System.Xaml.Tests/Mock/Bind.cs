@@ -19,10 +19,7 @@ public static class BindHelpers
 	public static T CreateElement<T>(Action<BindImpl>? action = null) where T : UIElementBase, new()
 	{
 		var elem = new T();
-		if (action != null)
-		{
-			action(elem.BindImpl);
-		}
+		action?.Invoke(elem.BindImpl);
 		return elem;
 	}
 }
