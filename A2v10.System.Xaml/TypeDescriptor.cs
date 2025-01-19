@@ -1,6 +1,5 @@
-﻿// Copyright © 2021-2024 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2025 Oleksandr Kukhtin. All rights reserved.
 
-using System.Linq;
 using System.Collections;
 using System.Reflection;
 
@@ -16,7 +15,6 @@ public class TypeDescriptor(Type nodeType, String typeName,
 	public Func<Object>? Constructor { get; init; }
 	public Func<String, Object>? ConstructorString { get; init; }
 	public Func<XamlServiceProvider, Object>? ConstructorService { get; init; }
-
 
 	public String? ContentProperty { get; init; }
 
@@ -85,11 +83,7 @@ public class TypeDescriptor(Type nodeType, String typeName,
 			if (AddCollection != null)
 				AddCollection(instance, elem);
 			else if (AddDictionary != null)
-			{
-				if (node.Properties.Where(x => x.Key == "Key").FirstOrDefault().Value is not SpecialPropertyDescriptor keyProp)
-					throw new XamlException($"Property Key not found in type {node.Name}");
-				AddDictionary(instance, keyProp.Name, elem);
-			}
+                AddDictionary(instance, node.XKeyName, elem);
 			return;
 		}
 		if (!Properties.TryGetValue(ContentProperty, out PropertyDescriptor? contDef))
@@ -114,8 +108,13 @@ public class TypeDescriptor(Type nodeType, String typeName,
 			}
 		}
 		if (contObj != null)
-			AddCollection?.Invoke(contObj, elem);
-	}
+		{
+            if (AddCollection != null)
+                AddCollection(contObj, elem);
+            else if (AddDictionary != null)
+                AddDictionary(contObj, node.XKeyName, elem);
+        }
+    }
 
 	public Object? BuildNestedProperty(NodeBuilder builder, String name, XamlNode node)
 	{
