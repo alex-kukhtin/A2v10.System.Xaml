@@ -37,10 +37,14 @@ public class TypeDescriptor(Type nodeType, String typeName,
 		return name;
 	}
 
-	public void SetPropertyValue(Object instance, String name, Object value)
+	public void SetPropertyValue(Object instance, String name, Object value, Boolean skipUnknown)
 	{
 		if (!Properties.TryGetValue(name, out PropertyDescriptor? propDef))
-			throw new XamlException($"Property {name} not found in type {TypeName}");
+		{
+			if (skipUnknown)
+				return;
+            throw new XamlException($"Property {name} not found in type {TypeName}");
+		}
 		var propInfo = propDef.PropertyInfo;
 		var val = PropertyConvertor.ConvertValue(value, propInfo.PropertyType, propDef.TypeConverter);
 		if (propDef.AddMethod != null && !propInfo.CanWrite)

@@ -58,8 +58,9 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 	}
 
 	public Boolean EnableMarkupExtensions => options == null || !options.DisableMarkupExtensions;
+	public Boolean SkipUnknownProperties => options?.SkipUnknownProperties ?? false;
 
-	public IAttachedPropertyManager AttachedPropertyManager => serviceProvider.GetService<IAttachedPropertyManager>();
+    public IAttachedPropertyManager AttachedPropertyManager => serviceProvider.GetService<IAttachedPropertyManager>();
 
 
 	const String NS_PATTERN = @"^\s*clr-namespace\s*:\s*([\w\.]+)\s*;\s*assembly\s*=\s*([\w\.]+)\s*$";
@@ -84,7 +85,8 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		var nsddef = IsCustomNamespace(value);
 		if (nsddef != null)
 		{
-			var nsd = new NamespaceDefinition(nsddef.Namespace, Assembly.Load(nsddef.Assembly))
+			var ass = nsddef.Assembly == "Self" ? Assembly.GetExecutingAssembly() : Assembly.Load(nsddef.Assembly);
+			var nsd = new NamespaceDefinition(nsddef.Namespace, ass)
 			{
 				IsCamelCase = nsddef.IsCamelCase,
 				IsSkip = nsddef.IsSkip
@@ -346,7 +348,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 				node.Extensions.Add(new XamlExtensionElem(propInfo, markup));
 			}
 			else
-				nd.SetPropertyValue(obj, propKey, propValue);
+				nd.SetPropertyValue(obj, propKey, propValue, SkipUnknownProperties);
 		}
 		if (node.HasChildren)
 		{

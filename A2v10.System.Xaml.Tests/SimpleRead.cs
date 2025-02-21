@@ -1,4 +1,4 @@
-using A2v10.System.Xaml.Tests.Mock;
+﻿using A2v10.System.Xaml.Tests.Mock;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace A2v10.System.Xaml.Tests
@@ -98,5 +98,24 @@ namespace A2v10.System.Xaml.Tests
 			Assert.AreEqual("Ref2", code2.Ref);
 			Assert.AreEqual("X = 2", code2.Script);
 		}
-	}
+
+
+		[TestMethod]
+		public void ContentWithColors()
+		{
+            string xaml = @"
+<Sequence 
+	xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
+	xmlns:color=""http://www.omg.org/spec/BPMN/non-normative/color/1.0""
+	xmlns:bioc=""http://bpmn.io/schema/bpmn/biocolor/1.0"" 
+>
+  <Code bioc:stroke=""#6b3c00"" bioc:fill=""#ffe0b2"" color:background-color=""#ffe0b2""></Code>
+</Sequence>
+";
+
+            var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
+
+			int z = 55;
+        }
+    }
 }
