@@ -115,7 +115,36 @@ namespace A2v10.System.Xaml.Tests
 
             var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
 
-			int z = 55;
+            Assert.IsInstanceOfType(obj, typeof(Sequence));
+            Sequence sq = (obj as Sequence)!;
+            Assert.IsNotNull(sq.Activities);
+            Assert.AreEqual(1, sq.Activities.Count);
+			Assert.IsInstanceOfType(sq.Activities[0], typeof(Code));
+        }
+
+        [TestMethod]
+        public void ContentDiagram()
+        {
+            string xaml = @"
+<Sequence 
+	xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
+	xmlns:color=""http://www.omg.org/spec/BPMN/non-normative/color/1.0""
+	xmlns:bioc=""http://bpmn.io/schema/bpmn/biocolor/1.0"" 
+	xmlns:bpmndi=""http://www.omg.org/spec/BPMN/20100524/DI"" 
+>
+  <Code bioc:stroke=""#6b3c00"" bioc:fill=""#ffe0b2"" color:background-color=""#ffe0b2""></Code>
+  <bpmndi:BPMNDiagram id=""BpmnDiagram_1"">
+	<bpmndi:BPMNPlane id=""BpmnPlane_1"" bpmnElement=""Process_1""/>
+  </bpmndi:BPMNDiagram>
+</Sequence>
+";
+
+            var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
+
+			Assert.IsInstanceOfType(obj, typeof(Sequence));
+            Sequence sq = (obj as Sequence)!;
+			Assert.IsNotNull(sq.Activities);
+            Assert.AreEqual(1, sq.Activities.Count);
         }
     }
 }

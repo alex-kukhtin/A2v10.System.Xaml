@@ -11,13 +11,14 @@ public class XamlServicesOptions(NamespaceDef[] namespaces)
 	public Boolean SkipUnknownProperties { get; init; }	
     public Action<XamlReader>? OnCreateReader { get; init; }
 
-	private static readonly NamespaceDef[] BPMNNamespaces = [
+    // A2v10.Workflow.Bpmn.Diagram, A2v10.Workflow
+    private static readonly NamespaceDef[] BPMNNamespaces = [
 		new("http://www.omg.org/spec/bpmn/20100524/model", true, "A2v10.Workflow.Bpmn", "A2v10.Workflow", false),
-		new("http://www.omg.org/spec/bpmn/20100524/di", false, "A2v10.Workflow.Bpmn.Diagram", "A2v10.Workflow", true),
-		new("http://www.omg.org/spec/dd/20100524/di", false, "A2v10.Workflow.Bpmn.Diagram", "A2v10.Workflow", true),
-		new("http://www.omg.org/spec/dd/20100524/dc", false, "A2v10.Workflow.Bpmn.Diagram", "A2v10.Workflow", true),
-		new("http://www.w3.org/2001/xmlschema-instance", true, "A2v10.Workflow.Bpmn", "A2v10.Workflow", false),
-        new("http://bpmn.io/schema/bpmn/biocolor/1.0", false, "", "Self", true),
+        new("http://www.w3.org/2001/xmlschema-instance",   true, "A2v10.Workflow.Bpmn", "A2v10.Workflow", false),
+        new("http://www.omg.org/spec/bpmn/20100524/di",    false, "", "Self", true),
+		new("http://www.omg.org/spec/dd/20100524/di",      false, "", "Self", true),
+		new("http://www.omg.org/spec/dd/20100524/dc",      false, "", "Self", true),
+        new("http://bpmn.io/schema/bpmn/biocolor/1.0",     false, "", "Self", true),
         new("http://www.omg.org/spec/bpmn/non-normative/color/1.0", false, "", "Self", true)
     ];
 
