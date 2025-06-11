@@ -92,7 +92,7 @@ public class XamlNode(String name)
 		var bt = nodeType;
 		while (bt != null)
 		{
-			if (className == bt.Name)
+			if (className == bt.Name || className.Contains(':') && className.EndsWith(bt.Name))
 				return true;
 			bt = bt.BaseType;
 		}
