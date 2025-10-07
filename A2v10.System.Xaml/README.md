@@ -7,6 +7,7 @@
 
 * [A2v10.ViewEngine.Xaml](https://www.nuget.org/packages/A2v10.ViewEngine.Xaml)
 * [A2v10.Workflow](https://www.nuget.org/packages/A2v10.Workflow)
+* [A2v10.Workflow.Serialization](https://www.nuget.org/packages/A2v10.Workflow.Serialization)
 * [A2v10.Xaml.Report](https://www.nuget.org/packages/A2v10.Xaml.Report)
 
 # Tips & Tricks
