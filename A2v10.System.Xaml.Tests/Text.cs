@@ -23,7 +23,7 @@ First Segment
 		Assert.AreEqual(typeof(Text), obj.GetType());
 		var txt = obj as Text;
 		Assert.IsNotNull(txt);	
-		Assert.AreEqual(4, txt.Inlines.Count);
+		Assert.HasCount(4, txt.Inlines);
 		Assert.AreEqual("\nFirst Segment\n", txt.Inlines[0]);
 		Assert.AreEqual("Second Segment", (txt.Inlines[1] as Span)!.Content);
 		Assert.AreEqual("\n\tThird segment\n", txt.Inlines[2]);

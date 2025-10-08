@@ -43,10 +43,10 @@ namespace A2v10.System.Xaml.Tests
 			Assert.AreEqual(typeof(Button), obj.GetType());
 			var btn = obj as Button;
 			Assert.IsNotNull(btn);
-			Assert.AreEqual(true, btn.Bold);
-			Assert.AreEqual(true, btn.Italic);
-			Assert.AreEqual(false, btn.Underline);
-			Assert.AreEqual(false, btn.Block);
+			Assert.IsTrue(btn.Bold);
+			Assert.IsTrue(btn.Italic);
+			Assert.IsFalse(btn.Underline);
+			Assert.IsFalse(btn.Block);
 
 		}
 	}

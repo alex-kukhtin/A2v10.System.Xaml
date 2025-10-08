@@ -28,7 +28,7 @@ public class Collections
 		Assert.IsNotNull(p);
 
 		var c = p.Children;
-		Assert.AreEqual(2, c.Count);
+		Assert.HasCount(2, c);
 
 		var c1 = p.Children[0];
 		Assert.AreEqual(typeof(Block), c1.GetType());
@@ -36,8 +36,8 @@ public class Collections
 		var b1 = c1 as Block;
 		Assert.IsNotNull(b1);
 
-		Assert.AreEqual(true, b1.Show);
-		Assert.AreEqual(false, b1.If);
+		Assert.IsTrue(b1.Show);
+		Assert.IsFalse(b1.If);
 	}
 
 	[TestMethod]
@@ -58,7 +58,7 @@ public class Collections
 		Assert.IsNotNull(p);
 
 		var c = p.AddOns;
-		Assert.AreEqual(2, c.Count);
+		Assert.HasCount(2, c);
 
 		var c1 = p.AddOns[0];
 		Assert.AreEqual(typeof(Span), c1.GetType());
@@ -99,7 +99,7 @@ public class Collections
 			Assert.IsNotNull(c);
 
 			var slots = c.Slots;
-			Assert.AreEqual(2, slots.Count);
+			Assert.HasCount(2, slots);
 
 			var c1 = c.Slots["c1"];
 			Assert.AreEqual(typeof(Span), c1.GetType());

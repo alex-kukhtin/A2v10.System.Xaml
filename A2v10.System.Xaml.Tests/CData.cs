@@ -26,7 +26,7 @@ public class CData
 		Assert.IsNotNull(p);
 
 		var c = p.Children;
-		Assert.AreEqual(0, c.Count);
+		Assert.HasCount(0, c);
 
 		Assert.AreEqual("PageTitle", p.Title);
 		Assert.AreEqual("const expr = (sum) => sum + 5;", p?.Code?.Trim());
@@ -50,7 +50,7 @@ public class CData
 		Assert.IsNotNull(p);
 
 		var c = p.AddOns;
-		Assert.AreEqual(2, c.Count);
+		Assert.HasCount(2, c);
 
 		var c1 = p.AddOns[0];
 		Assert.AreEqual(typeof(Span), c1.GetType());

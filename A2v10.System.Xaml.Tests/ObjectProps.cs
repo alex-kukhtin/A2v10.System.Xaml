@@ -27,7 +27,7 @@ public class ObjectProps
 		Assert.IsNotNull(p);
 
 		var c = p.Children;
-		Assert.AreEqual(1, c.Count);
+		Assert.HasCount(1, c);
 
 		var c1 = p.Children[0];
 		Assert.AreEqual(typeof(Card), c1.GetType());
@@ -64,7 +64,7 @@ public class ObjectProps
         Assert.IsNotNull(p);
 
         var c = p.Children;
-        Assert.AreEqual(1, c.Count);
+        Assert.HasCount(1, c);
 
         var c1 = p.Children[0];
         Assert.AreEqual(typeof(CardDrawing), c1.GetType());

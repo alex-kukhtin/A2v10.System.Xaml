@@ -26,7 +26,7 @@ public class Derived
 		Assert.IsNotNull(p);
 
 		var c = p.Children;
-		Assert.AreEqual(1, c.Count);
+		Assert.HasCount(1, c);
 
 		var c1 = p.Children[0];
 		Assert.AreEqual(typeof(Selector), c1.GetType());

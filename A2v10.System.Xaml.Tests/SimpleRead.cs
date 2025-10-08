@@ -42,7 +42,7 @@ namespace A2v10.System.Xaml.Tests
 			var sq = obj as Sequence;
 			Assert.IsNotNull(sq);
 			Assert.IsNotNull(sq.Activities);
-			Assert.AreEqual(3, sq.Activities.Count);
+			Assert.HasCount(3, sq.Activities);
 			var code0 = sq.Activities[0] as Code;
 			Assert.IsNotNull(code0);
 			Assert.AreEqual("Ref1", code0.Ref);
@@ -88,7 +88,7 @@ namespace A2v10.System.Xaml.Tests
 			var sq = obj as Sequence;
 			Assert.IsNotNull(sq);
 			Assert.IsNotNull(sq.Activities);
-			Assert.AreEqual(3, sq.Activities.Count);
+			Assert.HasCount(3, sq.Activities);
 			var code0 = sq.Activities[0] as Code;
 			Assert.IsNotNull(code0);
 			Assert.AreEqual("Ref1", code0.Ref);
@@ -118,7 +118,7 @@ namespace A2v10.System.Xaml.Tests
             Assert.IsInstanceOfType(obj, typeof(Sequence));
             Sequence sq = (obj as Sequence)!;
             Assert.IsNotNull(sq.Activities);
-            Assert.AreEqual(1, sq.Activities.Count);
+            Assert.HasCount(1, sq.Activities);
 			Assert.IsInstanceOfType(sq.Activities[0], typeof(Code));
         }
 
@@ -144,7 +144,7 @@ namespace A2v10.System.Xaml.Tests
 			Assert.IsInstanceOfType(obj, typeof(Sequence));
             Sequence sq = (obj as Sequence)!;
 			Assert.IsNotNull(sq.Activities);
-            Assert.AreEqual(1, sq.Activities.Count);
+            Assert.HasCount(1, sq.Activities);
         }
     }
 }

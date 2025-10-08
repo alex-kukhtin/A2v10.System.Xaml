@@ -4,13 +4,11 @@ namespace A2v10.System.Xaml;
 public static class StringExtensions
 {
 	public static String ToPascalCase(this String? str) {
-
-        if (String.IsNullOrEmpty(str)) 
+        if (String.IsNullOrEmpty(str))
             return String.Empty;
-        Span<Char> buffer = stackalloc Char[str.Length];
-        str.AsSpan().CopyTo(buffer);
-        buffer[0] = Char.ToUpperInvariant(buffer[0]);
-        return new String (buffer);
-	}
+        if (Char.IsLower(str[0]))
+            return Char.ToUpperInvariant(str[0]) + str[1..];
+        return str;
+    }
 }
 
