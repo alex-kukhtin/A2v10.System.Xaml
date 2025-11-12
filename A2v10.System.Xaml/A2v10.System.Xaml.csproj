@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
 		<LangVersion>Latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
-		<Version>10.1.8028</Version>
-		<AssemblyVersion>10.1.8028</AssemblyVersion>
+		<Version>10.1.8030</Version>
+		<AssemblyVersion>10.1.8030</AssemblyVersion>
 		<Product>A2v10</Product>
 		<Authors>Oleksandr Kukthin</Authors>
 		<Copyright>Copyright © 2020-2025 Oleksandr Kukhtin. All rights reserved.</Copyright>
