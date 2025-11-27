@@ -86,9 +86,9 @@ public class TypeDescriptor(Type nodeType, String typeName,
 		{
 			if (AddCollection != null)
 				AddCollection(instance, elem);
-			else if (AddDictionary != null)
-                AddDictionary(instance, node.XKeyName, elem);
-			return;
+			else 
+				AddDictionary?.Invoke(instance, node.XKeyName, elem);
+            return;
 		}
 		if (!Properties.TryGetValue(ContentProperty, out PropertyDescriptor? contDef))
 			return;
@@ -115,8 +115,8 @@ public class TypeDescriptor(Type nodeType, String typeName,
 		{
             if (AddCollection != null)
                 AddCollection(contObj, elem);
-            else if (AddDictionary != null)
-                AddDictionary(contObj, node.XKeyName, elem);
+            else 
+				AddDictionary?.Invoke(contObj, node.XKeyName, elem);
         }
     }
 

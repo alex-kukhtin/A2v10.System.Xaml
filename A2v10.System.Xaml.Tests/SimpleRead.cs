@@ -1,5 +1,4 @@
 ﻿using A2v10.System.Xaml.Tests.Mock;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace A2v10.System.Xaml.Tests
 {
@@ -115,11 +114,11 @@ namespace A2v10.System.Xaml.Tests
 
             var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
 
-            Assert.IsInstanceOfType(obj, typeof(Sequence));
+            Assert.IsInstanceOfType<Sequence>(obj);
             Sequence sq = (obj as Sequence)!;
             Assert.IsNotNull(sq.Activities);
             Assert.HasCount(1, sq.Activities);
-			Assert.IsInstanceOfType(sq.Activities[0], typeof(Code));
+			Assert.IsInstanceOfType<Code>(sq.Activities[0]);
         }
 
         [TestMethod]
@@ -141,7 +140,7 @@ namespace A2v10.System.Xaml.Tests
 
             var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
 
-			Assert.IsInstanceOfType(obj, typeof(Sequence));
+			Assert.IsInstanceOfType<Sequence>(obj);
             Sequence sq = (obj as Sequence)!;
 			Assert.IsNotNull(sq.Activities);
             Assert.HasCount(1, sq.Activities);

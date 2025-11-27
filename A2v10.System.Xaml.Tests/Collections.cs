@@ -90,7 +90,7 @@ public class Collections
 </Component>
 """;
         
-		void __Test(String xaml)
+		static void __Test(String xaml)
 		{
 			var obj = XamlServices.Parse(xaml, null);
 

@@ -3,7 +3,7 @@
 using System.IO;
 using System.Xml;
 
-namespace A2v10.System.Xaml;
+namespace A2v10.System.Xaml.Tests;
 
 public static class XamlServices
 {

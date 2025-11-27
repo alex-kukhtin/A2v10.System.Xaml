@@ -28,5 +28,5 @@ The escape sequence ({}) is used so that an open brace ({) can be used as a lite
 
 # Feedback
 
-A2v10.Platform is released as open source under the MIT license.
+**A2v10.System.Xaml** is released as open source under the MIT license.
 Bug reports and contributions are welcome at the GitHub repository.
