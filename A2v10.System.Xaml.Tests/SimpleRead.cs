@@ -9,11 +9,11 @@ namespace A2v10.System.Xaml.Tests
 		[TestMethod]
 		public void SimpleProperty()
 		{
-			string xaml = @"
-<Sequence xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
-	Ref=""Ref0"">
+			String xaml = """
+<Sequence xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests" 
+	Ref="Ref0">
 </Sequence>
-";
+""";
 			var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
 
 			Assert.AreEqual(typeof(Sequence), obj.GetType());
@@ -25,16 +25,17 @@ namespace A2v10.System.Xaml.Tests
 		[TestMethod]
 		public void SimpleWithChildren()
 		{
-			string xaml = @"
-<Sequence xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" xmlns:sys=""clr-namespace:System;assembly=mscorlib"" 
-	Ref=""Ref0"">
+			String xaml = """
+<Sequence xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests" 
+	xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+	Ref="Ref0">
 <Sequence.Activities>
-	<Code Ref=""Ref1"" Script=""X = X + 1""/>
-	<Code Ref=""Ref2"" Script=""X = X + 2""/>
-	<Code Ref=""Ref3"" Script=""X = X + 3""/>
+	<Code Ref="Ref1" Script="X = X + 1"/>
+	<Code Ref="Ref2" Script="X = X + 2"/>
+	<Code Ref="Ref3" Script="X = X + 3"/>
 </Sequence.Activities>
 </Sequence>
-";
+""";
 			var obj = XamlServices.Parse(xaml);
 
 			Assert.AreEqual(typeof(Sequence), obj.GetType());

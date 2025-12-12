@@ -1,10 +1,11 @@
-﻿
+﻿// Copyright © 2025 Oleksandr Kukhtin. All rights reserved.
+
 using A2v10.System.Xaml.Tests.Mock;
 
 namespace A2v10.System.Xaml.Tests;
 
 [TestClass]
-[TestCategory("Xaml.Defived")]
+[TestCategory("Xaml.Derived")]
 public class Derived
 {
 	[TestMethod]

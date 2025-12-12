@@ -27,7 +27,7 @@ namespace A2v10.System.Xaml.Tests.Mock
 
 		public BindCmd(String command)
 		{
-			Command = (CommandType) Enum.Parse(typeof(CommandType), command);
+			Command = (CommandType) Enum.Parse<CommandType>(command);
 		}
 	}
 }

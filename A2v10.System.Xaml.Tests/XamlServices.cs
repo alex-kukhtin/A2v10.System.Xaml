@@ -33,4 +33,10 @@ public static class XamlServices
 		};
 		return xamlReader.Load(rdr);
 	}
+
+	public static String Write(Object obj)
+	{
+		var ws = new XamlWriterService();
+		return ws.GetXaml(obj);
+	}
 }

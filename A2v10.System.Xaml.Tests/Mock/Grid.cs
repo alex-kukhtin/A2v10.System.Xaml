@@ -1,4 +1,5 @@
-﻿
+﻿// Copyright © 2025 Oleksandr Kukhtin. All rights reserved.
+
 using Microsoft.Testing.Platform.Services;
 
 namespace A2v10.System.Xaml.Tests.Mock;
