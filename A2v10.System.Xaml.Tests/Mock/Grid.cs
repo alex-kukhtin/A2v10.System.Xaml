@@ -6,7 +6,7 @@ namespace A2v10.System.Xaml.Tests.Mock;
 
 [AttachedProperties("Col,Row")]
 [ContentProperty("Children")]
-public class Grid(IServiceProvider serviceProvider) : Container
+public class Grid(IServiceProvider serviceProvider) : Container, ISupportAttached
 {
     private readonly IAttachedPropertyManager _attachedPropertyManager = serviceProvider.GetRequiredService<IAttachedPropertyManager>();
 

@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 
 namespace A2v10.System.Xaml.Tests.Mock;
-public class UIElementBase : ISupportBinding, ISupportInitialize
+public class UIElementBase : ISupportBinding, ISupportInitialize, IBindWriter
 {
 	public Boolean? Show { get; set; }
 	public Boolean? If { get; set; }
@@ -35,7 +35,18 @@ public class UIElementBase : ISupportBinding, ISupportInitialize
 	public void EndInit()
 	{
 	}
-	#endregion
+
+    #endregion
+
+    #region IBindWriter
+    public String? CreateMarkup(String name)
+    {
+		var bind = BindImpl.GetBindingBase(name);
+		if (bind != null)
+			return bind.CreateMarkup();
+		return null;
+    }
+    #endregion
 }
 
 [TypeConverter(typeof(UICollectionConverter))]

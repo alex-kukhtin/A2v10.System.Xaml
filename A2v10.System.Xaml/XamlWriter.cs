@@ -17,7 +17,7 @@ public class XamlWriter
             IndentChars = "\t"
         };
 
-        XamlWriteNode writeNode = XamlWriteNode.Create(obj);
+        XamlWriteNode writeNode = XamlWriteNode.Create(obj, null);
 
 
         using var sw = new StringWriter();

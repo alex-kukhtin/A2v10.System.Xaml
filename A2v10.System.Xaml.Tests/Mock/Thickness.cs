@@ -51,9 +51,9 @@ public class Thickness
 		if (Left == Right && Left == Top && Left == Bottom)
 			return Left.Value;
 		else if (Left == Right && Top == Bottom)
-			return $"{Top.Value} {Left.Value}";
+			return $"{Top.Value}, {Left.Value}";
 		else
-			return $"{Top.Value} {Right.Value} {Bottom.Value} {Left.Value}";
+			return $"{Top.Value}, {Right.Value}, {Bottom.Value}, {Left.Value}";
 	}
 }
 

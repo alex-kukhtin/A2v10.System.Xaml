@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -29,5 +30,10 @@ namespace A2v10.System.Xaml.Tests.Mock
 		{
 			Command = (CommandType) Enum.Parse<CommandType>(command);
 		}
-	}
+
+        public override String CreateMarkup()
+        {
+            return $$"""{BindCmd {{Command}}}""";
+        }
+    }
 }

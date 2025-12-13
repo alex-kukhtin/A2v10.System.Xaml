@@ -38,11 +38,19 @@ public class BindImpl
 	public void RemoveBinding(String name)
 	{
 		if (_bindings == null) return;
-		if (_bindings.ContainsKey(name))
-			_bindings.Remove(name);
+		_bindings.Remove(name);
 	}
 
-	public Bind? GetBinding(String name)
+    public BindBase? GetBindingBase(String name)
+    {
+        if (_bindings == null)
+            return null;
+        if (_bindings.TryGetValue(name, out BindBase? bind))
+            return bind;
+        return null;
+    }
+
+    public Bind? GetBinding(String name)
 	{
 		if (_bindings == null)
 			return null;
@@ -73,6 +81,8 @@ public class BindImpl
 public abstract class BindBase : MarkupExtension, ISupportBinding
 {
 	public BindImpl BindImpl { get; } = new();
+
+	public abstract String CreateMarkup();
 
 	public override Object? ProvideValue(IServiceProvider serviceProvider)
 	{
@@ -134,5 +144,10 @@ public class Bind : BindBase, ISupportInitialize
 	public void EndInit()
 	{
 	}
-	#endregion
+    #endregion
+
+    public override String CreateMarkup()
+	{
+		return $$"""{Bind {{Path}}}""";
+	}
 }

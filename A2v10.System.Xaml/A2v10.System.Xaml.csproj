@@ -4,8 +4,8 @@
 		<LangVersion>Latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
-		<Version>10.1.8030</Version>
-		<AssemblyVersion>10.1.8030</AssemblyVersion>
+		<Version>10.1.8031</Version>
+		<AssemblyVersion>10.1.8031</AssemblyVersion>
 		<Product>A2v10</Product>
 		<Authors>Oleksandr Kukthin</Authors>
 		<Copyright>Copyright © 2020-2025 Oleksandr Kukhtin. All rights reserved.</Copyright>

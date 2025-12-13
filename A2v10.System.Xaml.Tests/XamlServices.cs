@@ -36,7 +36,7 @@ public static class XamlServices
 
 	public static String Write(Object obj)
 	{
-		var ws = new XamlWriterService();
-		return ws.GetXaml(obj);
+		var xw = new XamlWriter();
+		return xw.GetXaml(obj);
 	}
 }

@@ -89,7 +89,7 @@ public class WriterSimple
             First Segment
             <Span>Second Segment</Span>
             Third segment
-            <Span Show="False">Fourth Segment</Span>
+            <Span Show="True">Fourth Segment</Span>
         </Text>
         """;
         var text = new Text()
@@ -101,7 +101,7 @@ public class WriterSimple
                 },
                 "Third segment",
                 new Span() {
-                    Content = "Fourth Segment", Show = false
+                    Content = "Fourth Segment", Show = true
                 }
             ]
         };
