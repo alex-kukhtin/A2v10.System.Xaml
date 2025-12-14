@@ -20,8 +20,9 @@ public class Button :  UIElementBase
 	public Boolean Italic { get; set; }
 	public Boolean Underline { get; set; }
 	public Boolean Bold { get; set; }
+    public Int32 TabIndex { get; set; }
 
-	private readonly Lazy<UIElementCollection> _addOns = new();
+    private readonly Lazy<UIElementCollection> _addOns = new();
 
 	public UIElementCollection AddOns => _addOns.Value;
 }

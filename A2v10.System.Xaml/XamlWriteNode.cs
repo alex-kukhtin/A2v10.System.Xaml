@@ -3,6 +3,7 @@
 using System.Reflection;
 using System.Collections;
 using System.Linq;
+using System.Transactions;
 
 namespace A2v10.System.Xaml;
 
@@ -74,6 +75,8 @@ public class XamlWriteNode(String name)
         {
             String isStr => (true, !String.IsNullOrWhiteSpace(isStr) ? isStr : null),
             Boolean bVal => (true, bVal ? bVal.ToString() : null),
+            Int32 intVal => (true, intVal != 0 ? intVal.ToString() : null),
+            UInt32 uintVal => (true, uintVal != 0 ? uintVal.ToString() : null),
             _ => (false, null)
         };
         if (has)
