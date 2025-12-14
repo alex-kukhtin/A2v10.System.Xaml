@@ -98,4 +98,45 @@ public partial class TextXamlWriter
 
         Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
     }
+
+    [TestMethod]
+    public void GridRowDefinitions()
+    {
+        String xaml = """
+        <Grid xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"
+                Rows="Auto, 12rem">
+            <Button Grid.Row="2" Grid.Col="3" Content="2:3"/>
+            <Button Grid.Row="1" Grid.Col="5" Content="1:5"/>
+        </Grid>
+        """;
+
+        var sp = new XamlServiceProvider();
+
+        var b1 = new Button()
+        {
+            Content = "2:3",
+        };
+        var b2 = new Button()
+        {
+            Content = "1:5",
+        };
+        var grid = new Grid(sp)
+        {
+            Children = [b1, b2]
+        };
+        grid.SetRow(b1, 2);
+        grid.SetCol(b1, 3);
+        grid.SetRow(b2, 1);
+        grid.SetCol(b2, 5);
+
+        grid.Rows = new RowDefinitions()
+        {
+            new RowDefinition() {Height = Length.FromString("Auto")  },
+            new RowDefinition() {Height = Length.FromString("12rem") },
+        };
+
+        var writtenStr = XamlServices.Write(grid);
+
+        Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
+    }
 }

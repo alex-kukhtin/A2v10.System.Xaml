@@ -11,7 +11,7 @@ public enum LengthType
 }
 
 [TypeConverter(typeof(LengthConverter))]
-public record Length
+public record Length : IXamlConverter
 {
 	public String? Value;
 
@@ -58,6 +58,17 @@ public record Length
 			return new Length() { Value = $"{dblVal}px" };
 		throw new XamlException($"Invalid length value '{strVal}'");
 	}
+
+    #region IXamlConverter
+    public String? ToXamlString()
+    {
+        if (Value == "auto")
+            return "Auto";
+        else if (Value == "fit-content")
+            return "Fit";
+        return Value;
+    }
+    #endregion
 }
 
 public class LengthConverter : TypeConverter

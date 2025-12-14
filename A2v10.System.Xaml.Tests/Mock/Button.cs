@@ -9,6 +9,7 @@ public enum Icon
 	Folder
 }
 
+[ContentProperty("Content")]
 public class Button :  UIElementBase
 {
 	public String? Content { get; set; }

@@ -9,10 +9,10 @@ public partial class TextXamlWriter
 	public void SimpleWithChildren()
 	{
 		String xaml = """
-<Sequence xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests" Ref="Ref0">
-    <Code Ref="Ref1">X = X + 1</Code>
-    <Code Ref="Ref2">X = X + 2</Code>
-    <Code Ref="Ref3">X = X + 3</Code>
+<Sequence Ref="Ref0" xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests">
+	<Code Script="X = X + 1" Ref="Ref1" />
+	<Code Script="X = X + 2" Ref="Ref2" />
+	<Code Script="X = X + 3" Ref="Ref3" />
 </Sequence>
 """;
 

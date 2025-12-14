@@ -3,7 +3,6 @@
 using System.Reflection;
 using System.Collections;
 using System.Linq;
-using System.Transactions;
 
 namespace A2v10.System.Xaml;
 
@@ -23,6 +22,8 @@ public class XamlWriteNode(String name)
     {
         var tp = obj.GetType();
         var cp = tp.GetCustomAttribute<ContentPropertyAttribute>()?.Name;
+
+        var ignoreProps = tp.GetCustomAttribute<IgnoreWritePropertiesAttribute>();
         String nsp = $"clr-namespace:{tp.Namespace};assembly={tp.Assembly.GetName().Name}";
         var node = new XamlWriteNode(tp.Name)
         {
@@ -33,7 +34,7 @@ public class XamlWriteNode(String name)
             if (node.AddCollectionNode(tp, obj, parent))
                 return node;
         }
-        node.ParseProperties(obj);
+        node.ParseProperties(obj, ignoreProps);
         if (parent != null)
             node.ParseAttached(obj, parent);
         return node;
@@ -41,14 +42,16 @@ public class XamlWriteNode(String name)
 
     private readonly static HashSet<String> _skippedProps =
     [..
-        "AttachedPropertyManager,BindImpl,Bindings,Attach".Split(',')
+        "AttachedPropertyManager,BindImpl,Bindings,Attach,IsParentToolBar".Split(',')
     ];
-    public void ParseProperties(Object obj)
+    public void ParseProperties(Object obj, IgnoreWritePropertiesAttribute? ignoreProps)
     {
         foreach (var prop in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => !_skippedProps.Contains((p.Name)))
             )
         {
+            if (ignoreProps != null && ignoreProps.Contains(prop.Name))
+                continue;
             if (prop.GetIndexParameters().Length == 0)
                 ParseOneProperty(prop, prop.GetValue(obj), obj);
         }
@@ -62,6 +65,9 @@ public class XamlWriteNode(String name)
             return;
 
         Boolean isContentProp = prop.Name == ContentProperty;
+
+        if (prop.PropertyType == typeof(String))
+            isContentProp = false; // simplify
         if (prop.PropertyType.IsEnum)
         {
             var enumText = value.ToString();
@@ -86,13 +92,15 @@ public class XamlWriteNode(String name)
             return;
         }
 
-        if (AddCollectionProp(prop, value, parent))
-            return;
 
         if (value is IXamlConverter xamlConverter)
             Properties.Add(new XamlWriteProp(prop.Name, xamlConverter.ToXamlString(), isContentProp));
         else
+        {
+            if (AddCollectionProp(prop, value, parent))
+                return;
             Properties.Add(new XamlWriteProp(prop.Name, XamlWriteNode.Create(value, parent), isContentProp));
+        }
     }
 
     Boolean ParseBinding(PropertyInfo prop, Object? value)

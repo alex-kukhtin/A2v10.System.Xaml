@@ -1,8 +1,24 @@
 ﻿// Copyright © 2025 Oleksandr Kukhtin. All rights reserved.
 
+using System.Linq;
+
 using Microsoft.Testing.Platform.Services;
 
 namespace A2v10.System.Xaml.Tests.Mock;
+
+public record RowDefinition
+{
+    public Length? Height { get; set; }
+}
+
+[WrapContent]
+public class RowDefinitions : List<RowDefinition>, IXamlConverter
+{
+    public string? ToXamlString()
+    {
+        return String.Join(", ", this.Select(x => x.Height is IXamlConverter xamlConv ? xamlConv.ToXamlString() : x.Height?.ToString()));
+    }
+}
 
 [AttachedProperties("Col,Row")]
 [ContentProperty("Children")]
@@ -10,6 +26,8 @@ public class Grid(IServiceProvider serviceProvider) : Container, ISupportAttache
 {
     private readonly IAttachedPropertyManager _attachedPropertyManager = serviceProvider.GetRequiredService<IAttachedPropertyManager>();
 
+
+    public RowDefinitions? Rows { get; set; }
     #region Attached Properties
 
     // for testing attached properties  

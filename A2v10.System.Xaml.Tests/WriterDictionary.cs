@@ -85,14 +85,20 @@ public partial class TextXamlWriter
     public void CollectionView()
     {
         var xaml = """
-        <Styles xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests">
-        	<Style x:Key="s1">
-        		<Setter Property="Bold" Value="True" />
-        	</Style>
-        	<Style x:Key="s2">
-        		<Setter Property="Italic" Value="True" />
-        	</Style>
-        </Styles>
+        <Page xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests">
+        	<Page.CollectionView>
+        		<CollectionView ItemsSource="{Bind CollectionViewPath}" />
+        	</Page.CollectionView>
+        	<Page.Toolbar>
+        		<Toolbar>
+        			<Button />
+        			<Button />
+        		</Toolbar>
+        	</Page.Toolbar>
+        	<Card />
+        	<Alert />
+        	<Alert />
+        </Page>
         """;
 
         var page = new Page()
@@ -118,9 +124,35 @@ public partial class TextXamlWriter
         page.CollectionView.BindImpl.SetBinding("ItemsSource", new Bind("CollectionViewPath"));
 
         var writtenStr = XamlServices.Write(page);
-
-        int z = 55;
+        Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
     }
 
 
+    [TestMethod]
+    public void IgnoreProperties()
+    {
+        var xaml = """
+        <Page xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests">
+        	<SelectorSimple Url="{Bind UrlBinding}" Data="{Bind DataBinding}" Text="{Bind TextBinding}" />
+        </Page>
+        """;
+
+        var page = new Page()
+        {
+            Children = [
+                new SelectorSimple() {
+                    Fetch = "MyFetch",
+                    FetchData = "MyFetchData",
+                }
+            ]
+        };
+
+        page.Children[0].BindImpl.SetBinding("Url", new Bind("UrlBinding"));
+        page.Children[0].BindImpl.SetBinding("Data", new Bind("DataBinding"));
+        page.Children[0].BindImpl.SetBinding("Text", new Bind("TextBinding"));
+
+        var writtenStr = XamlServices.Write(page);
+        
+        Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
+    }
 }
