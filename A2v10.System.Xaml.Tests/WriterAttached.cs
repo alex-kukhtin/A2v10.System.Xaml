@@ -5,8 +5,8 @@ using A2v10.System.Xaml.Tests.Mock;
 namespace A2v10.System.Xaml.Tests;
 
 [TestClass]
-[TestCategory("Xaml.Writer.Attached")]
-public class WriterAttached
+[TestCategory("Xaml.Writer")]
+public partial class TextXamlWriter
 {
     [TestMethod]
     public void GridAttached()

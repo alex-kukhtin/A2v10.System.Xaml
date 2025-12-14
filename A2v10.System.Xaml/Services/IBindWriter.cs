@@ -6,3 +6,9 @@ public interface IBindWriter
 {
     String? CreateMarkup(String name);
 }
+
+
+public interface IXamlConverter
+{
+    String? ToXamlString();
+}

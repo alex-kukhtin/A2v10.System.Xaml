@@ -1,6 +1,7 @@
 ﻿
 namespace A2v10.System.Xaml.Tests.Mock;
 
+[WrapContent]
 public class ResourceDictionary : Dictionary<String, Object>
 {
 

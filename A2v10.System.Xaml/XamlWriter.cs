@@ -8,6 +8,9 @@ namespace A2v10.System.Xaml;
 
 public class XamlWriter
 {
+    private Boolean _hasDictionary;
+
+    private const String X_NS = "http://schemas.microsoft.com/winfx/2006/xaml";
     public String GetXaml(Object obj)
     {
         var settings = new XmlWriterSettings
@@ -19,25 +22,32 @@ public class XamlWriter
 
         XamlWriteNode writeNode = XamlWriteNode.Create(obj, null);
 
+        _hasDictionary = writeNode.AllElements().Any(x => x.IsDictionary);
 
         using var sw = new StringWriter();
         using (var writer = XmlWriter.Create(sw, settings))
         {
             writer.WriteStartDocument();    
-            WriteNode(writer, writeNode);
+            WriteNode(writer, writeNode, true);
             writer.WriteEndDocument();
         }
         return sw.ToString();
     }
 
-    static void WriteNode(XmlWriter writer, XamlWriteNode node)
+    void WriteNode(XmlWriter writer, XamlWriteNode node, Boolean bRoot)
     {
         writer.WriteStartElement(node.Name, node.Namespace);
+
+        if (bRoot && _hasDictionary)
+            writer.WriteAttributeString("xmlns", "x", null, X_NS);
 
         // first path - string attributes 
         foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is String && !p.IsContent))
         {
-            writer.WriteAttributeString(prop.Name, prop.Value!.ToString());
+            if (prop.Name.StartsWith("x:"))
+                writer.WriteAttributeString(prop.Name[2..], X_NS, prop.Value!.ToString());
+            else
+                writer.WriteAttributeString(prop.Name, prop.Value!.ToString());
         }
         // second path - string content
         foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is String && p.IsContent))
@@ -51,11 +61,11 @@ public class XamlWriter
             if (prop.Value is XamlWriteNode propNode)
             {
                 if (isContentProp)
-                    WriteNode(writer, propNode);
+                    WriteNode(writer, propNode, false);
                 else
                 {
                     writer.WriteStartElement($"{node.Name}.{prop.Name}");
-                    WriteNode(writer, propNode);
+                    WriteNode(writer, propNode, false);
                     writer.WriteEndElement();
                 }
 
@@ -67,7 +77,7 @@ public class XamlWriter
                     if (item is String strValue)
                         writer.WriteString(strValue);
                     else if (item is XamlWriteNode writeNode)
-                        WriteNode(writer, writeNode);
+                        WriteNode(writer, writeNode, false);
                 }
             }
         }

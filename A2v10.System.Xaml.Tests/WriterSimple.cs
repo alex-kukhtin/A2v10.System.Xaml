@@ -2,9 +2,8 @@
 
 namespace A2v10.System.Xaml.Tests;
 
-[TestClass]
-[TestCategory("Xaml.Writer.Simple")]
-public class WriterSimple
+[TestCategory("Xaml.Writer")]
+public partial class TextXamlWriter
 {
 	[TestMethod]
 	public void SimpleWithChildren()

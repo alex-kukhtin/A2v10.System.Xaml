@@ -1,11 +1,12 @@
-﻿using System;
+﻿// Copyright © 2025 Oleksandr Kukhtin. All rights reserved.
+
 using System.ComponentModel;
 using System.Globalization;
 
 namespace A2v10.System.Xaml.Tests.Mock;
 
 [TypeConverter(typeof(ThicknessConverter))]
-public class Thickness
+public class Thickness : IXamlConverter
 {
 	public Length Top { get; set; } = new();
 	public Length Right { get; set; } = new();
@@ -51,10 +52,20 @@ public class Thickness
 		if (Left == Right && Left == Top && Left == Bottom)
 			return Left.Value;
 		else if (Left == Right && Top == Bottom)
-			return $"{Top.Value}, {Left.Value}";
+			return $"{Top.Value} {Left.Value}";
 		else
-			return $"{Top.Value}, {Right.Value}, {Bottom.Value}, {Left.Value}";
+			return $"{Top.Value} {Right.Value} {Bottom.Value} {Left.Value}";
 	}
+
+    public String? ToXamlString()
+    {
+        if (Left == Right && Left == Top && Left == Bottom)
+            return Left.Value;
+        else if (Left == Right && Top == Bottom)
+            return $"{Top.Value}, {Left.Value}";
+        else
+            return $"{Top.Value}, {Right.Value}, {Bottom.Value}, {Left.Value}";
+    }
 }
 
 public class ThicknessConverter : TypeConverter

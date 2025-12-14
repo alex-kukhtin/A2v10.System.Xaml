@@ -3,7 +3,6 @@
 using System.Reflection;
 using System.Collections;
 using System.Linq;
-using System.ComponentModel;
 
 namespace A2v10.System.Xaml;
 
@@ -17,6 +16,7 @@ public class XamlWriteNode(String name)
     public String Name { get; init; } = name;
     public String? Namespace { get; init; }
     public String? ContentProperty { get; init; }
+    public Boolean IsDictionary { get; private set; }
     public List<XamlWriteProp> Properties { get; } = [];
     public static XamlWriteNode Create(Object obj, Object? parent)
     {
@@ -28,6 +28,10 @@ public class XamlWriteNode(String name)
             Namespace = nsp,
             ContentProperty = cp,
         };
+        if (parent == null) {
+            if (node.AddCollectionNode(tp, obj, parent))
+                return node;
+        }
         node.ParseProperties(obj);
         if (parent != null)
             node.ParseAttached(obj, parent);
@@ -44,7 +48,8 @@ public class XamlWriteNode(String name)
             .Where(p => !_skippedProps.Contains((p.Name)))
             )
         {
-            ParseOneProperty(prop, prop.GetValue(obj), obj);
+            if (prop.GetIndexParameters().Length == 0)
+                ParseOneProperty(prop, prop.GetValue(obj), obj);
         }
     }
     public void ParseOneProperty(PropertyInfo prop, Object? value, Object parent)
@@ -81,9 +86,8 @@ public class XamlWriteNode(String name)
         if (AddCollectionProp(prop, value, parent))
             return;
 
-        var tc = value.GetType().GetCustomAttribute<TypeConverterAttribute>();
-        if (tc != null)
-            Properties.Add(new XamlWriteProp(prop.Name, value.ToString(), isContentProp));
+        if (value is IXamlConverter xamlConverter)
+            Properties.Add(new XamlWriteProp(prop.Name, xamlConverter.ToXamlString(), isContentProp));
         else
             Properties.Add(new XamlWriteProp(prop.Name, XamlWriteNode.Create(value, parent), isContentProp));
     }
@@ -105,6 +109,8 @@ public class XamlWriteNode(String name)
         if (addMethod == null)
             return false;
         Boolean isContentProp = prop.Name == ContentProperty;
+        Boolean isDict = addMethod.GetParameters().Length == 2;
+        Boolean hasWrapper = prop.PropertyType.GetCustomAttribute<WrapContentAttribute>() != null;
         // collection
         if (value is IEnumerable iEnum)
         {
@@ -113,15 +119,87 @@ public class XamlWriteNode(String name)
             {
                 if (item is String)
                     list.Add(item);
+                else if (isDict && item is KeyValuePair<String, Object> keyValuePair)
+                {
+                    var obj = XamlWriteNode.Create(keyValuePair.Value, parent);
+                    obj.Properties.Add(new XamlWriteProp("x:Key", keyValuePair.Key, false));
+                    list.Add(obj);
+                }
                 else
                     list.Add(XamlWriteNode.Create(item, parent));
             }
             if (list.Count > 0)
-                Properties.Add(new XamlWriteProp(prop.Name, list, isContentProp));
+            {
+                if (!hasWrapper)
+                    Properties.Add(new XamlWriteProp(prop.Name, list, isContentProp));
+                else
+                {
+                    // wrapper
+                    var wrapProp = new XamlWriteProp(prop.PropertyType.Name, list, true);
+                    var wrapObj = new XamlWriteNode(prop.PropertyType.Name)
+                    {
+                        IsDictionary = isDict
+                    };
+                    wrapObj.Properties.Add(wrapProp);
+                    Properties.Add(new XamlWriteProp(prop.Name, wrapObj, false));
+                }
+            }
             return true;
         }
         return false;
     }
+
+    KeyValuePair<String, Object>? GenericKeyValuePair(Object item)
+    {
+        if (item is KeyValuePair<String, Object> kvp)
+            return kvp;
+        var tp = item.GetType();
+        if (tp.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+        {
+            var keyProp = tp.GetProperty("Key")!;
+            var valProp = tp.GetProperty("Value")!;
+            return new KeyValuePair<String, Object>(keyProp.GetValue(item)!.ToString()!, valProp.GetValue(item)!);
+        }
+        return null;
+    }
+
+    Boolean AddCollectionNode(Type type, Object? value, Object? parent)
+    {
+        var addMethod = type.GetMethod("Add");
+        if (addMethod == null)
+            return false;
+        Boolean isDict = addMethod.GetParameters().Length == 2;
+        IsDictionary = isDict;
+        // collection
+        if (value is IEnumerable iEnum)
+        {
+            var list = new List<Object>();
+            foreach (var item in iEnum)
+            {
+                if (item is String)
+                    list.Add(item);
+                else if (isDict)
+                {
+                    var kvp = GenericKeyValuePair(item);
+                    if (kvp != null)
+                    {
+                        var obj = XamlWriteNode.Create(kvp.Value.Value, parent);
+                        obj.Properties.Add(new XamlWriteProp("x:Key", kvp.Value.Key, false));
+                        list.Add(obj);
+                    }
+                }
+                else
+                    list.Add(XamlWriteNode.Create(item, parent));
+            }
+            if (list.Count > 0)
+            {
+                Properties.Add(new XamlWriteProp(type.Name, list, true));
+            }
+            return true;
+        }
+        return false;
+    }
+
     void ParseAttached(Object obj, Object? parent)
     {
         if (parent == null)
@@ -139,6 +217,26 @@ public class XamlWriteNode(String name)
             var attVal = attPropManager.GetProperty<Object>(propName, obj);
             if (attVal != null)
                 Properties.Add(new XamlWriteProp(propName, attVal.ToString(), false));
+        }
+    }
+
+    public IEnumerable<XamlWriteNode> AllElements()
+    {
+        yield return this;
+        foreach (var prop in Properties)
+        {
+            if (prop.Value is XamlWriteNode obj1)  
+                foreach (var n1 in obj1.AllElements())
+                    yield return n1;
+            else if (prop.Value is IEnumerable iEnum)
+            {
+                foreach (var item in iEnum)
+                {
+                    if (item is XamlWriteNode obj2)
+                        foreach (var n2 in obj2.AllElements())
+                            yield return n2;
+                }
+            }
         }
     }
 }
