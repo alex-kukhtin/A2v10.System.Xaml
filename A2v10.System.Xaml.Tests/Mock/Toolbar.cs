@@ -2,6 +2,7 @@
 
 namespace A2v10.System.Xaml.Tests.Mock;
 
+[ContentProperty("Children")]
 public class Toolbar : Container
 {
 }

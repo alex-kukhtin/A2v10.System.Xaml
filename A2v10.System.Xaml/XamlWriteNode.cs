@@ -21,7 +21,9 @@ public class XamlWriteNode(String name)
     public static XamlWriteNode Create(Object obj, Object? parent)
     {
         var tp = obj.GetType();
-        var cp = tp.GetCustomAttribute<ContentPropertyAttribute>()?.Name;
+        String? cp = null;
+        if (tp.GetCustomAttribute<ContentAsXamlAttrAttribute>() == null)
+            cp = tp.GetCustomAttribute<ContentPropertyAttribute>()?.Name;
 
         var ignoreProps = tp.GetCustomAttribute<IgnoreWritePropertiesAttribute>();
         String nsp = $"clr-namespace:{tp.Namespace};assembly={tp.Assembly.GetName().Name}";
@@ -66,8 +68,6 @@ public class XamlWriteNode(String name)
 
         Boolean isContentProp = prop.Name == ContentProperty;
 
-        if (prop.PropertyType == typeof(String))
-            isContentProp = false; // simplify
         if (prop.PropertyType.IsEnum)
         {
             var enumText = value.ToString();
@@ -142,7 +142,9 @@ public class XamlWriteNode(String name)
             if (list.Count > 0)
             {
                 if (!hasWrapper)
+                {
                     Properties.Add(new XamlWriteProp(prop.Name, list, isContentProp));
+                }
                 else
                 {
                     // wrapper

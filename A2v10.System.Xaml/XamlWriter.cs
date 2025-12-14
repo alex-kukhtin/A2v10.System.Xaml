@@ -57,18 +57,11 @@ public class XamlWriter
         // third path - node content
         foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is not String))
         {
-            Boolean isContentProp = prop.Name == node.ContentProperty;
+            if (!prop.IsContent)
+                writer.WriteStartElement($"{node.Name}.{prop.Name}");
             if (prop.Value is XamlWriteNode propNode)
             {
-                if (isContentProp)
-                    WriteNode(writer, propNode, false);
-                else
-                {
-                    writer.WriteStartElement($"{node.Name}.{prop.Name}");
-                    WriteNode(writer, propNode, false);
-                    writer.WriteEndElement();
-                }
-
+                WriteNode(writer, propNode, false);
             }
             else if (prop.Value is List<Object> listValues)
             {
@@ -80,6 +73,8 @@ public class XamlWriter
                         WriteNode(writer, writeNode, false);
                 }
             }
+            if (!prop.IsContent)
+                writer.WriteEndElement();
         }
         writer.WriteEndElement();
     }

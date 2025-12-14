@@ -137,4 +137,29 @@ public partial class TextXamlWriter
 
         Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
     }
+
+    [TestMethod]
+    public void DialogButtons()
+    {
+        String xaml = """
+        <Dialog xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests">
+            <Dialog.Buttons>
+                <Button Content="Button1"/>
+                <Button Content="Button2"/>
+            </Dialog.Buttons>
+        </Dialog>
+        """;
+
+        var dialog = new Dialog()
+        {
+            Buttons = [
+                new Button() {Content = "Button1" },
+                new Button() {Content = "Button2" }
+            ]
+        };
+
+        var writtenStr = XamlServices.Write(dialog);
+
+        Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
+    }
 }

@@ -10,9 +10,10 @@ public enum Icon
 }
 
 [ContentProperty("Content")]
+[ContentAsXamlAttr]
 public class Button :  UIElementBase
 {
-	public String? Content { get; set; }
+	public Object? Content { get; set; }
 	public Object? Command { get; set; }
 
 	public Icon Icon { get; set; }
