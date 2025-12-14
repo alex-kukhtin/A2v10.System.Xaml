@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2025 Oleksandr Kukhtin. All rights reserved.
 
 using System.ComponentModel;
 using System.Globalization;
@@ -10,7 +10,10 @@ public class UIElementBase : ISupportBinding, ISupportInitialize, IBindWriter
 	public Boolean? If { get; set; }
 	public Thickness? Padding { get; set; }
 
-	private readonly BindImpl _bindImpl = new();
+    public Action<UIElementBase>? Bindings { get; init; }
+    public Action<IDictionary<String, Object>>? Attach { get; set; }
+
+    private readonly BindImpl _bindImpl = new();
 
 	#region ISupportBinding
 	public BindImpl BindImpl => _bindImpl;

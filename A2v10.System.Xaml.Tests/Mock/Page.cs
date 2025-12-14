@@ -14,6 +14,8 @@ public class Page : Container
 
     public ResourceDictionary Resources { get; set; } = [];
 
+    public CollectionView? CollectionView { get; set; } 
+
     public String? Title { get; set; }
 
     public UIElementBase? Toolbar { get; set; }

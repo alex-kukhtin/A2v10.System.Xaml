@@ -39,8 +39,8 @@ public class XamlWriteNode(String name)
     }
 
     private readonly static HashSet<String> _skippedProps =
-    [.. 
-        "AttachedPropertyManager,BindImpl".Split(',')
+    [..
+        "AttachedPropertyManager,BindImpl,Bindings,Attach".Split(',')
     ];
     public void ParseProperties(Object obj)
     {
@@ -154,7 +154,7 @@ public class XamlWriteNode(String name)
         if (item is KeyValuePair<String, Object> kvp)
             return kvp;
         var tp = item.GetType();
-        if (tp.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+        if (tp.IsGenericType && tp.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
         {
             var keyProp = tp.GetProperty("Key")!;
             var valProp = tp.GetProperty("Value")!;

@@ -80,4 +80,47 @@ public partial class TextXamlWriter
         var writtenStr = XamlServices.Write(styles);
         Assert.IsTrue(Utils.XmlEquals(writtenStr, xaml));
     }
+
+    [TestMethod]
+    public void CollectionView()
+    {
+        var xaml = """
+        <Styles xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests">
+        	<Style x:Key="s1">
+        		<Setter Property="Bold" Value="True" />
+        	</Style>
+        	<Style x:Key="s2">
+        		<Setter Property="Italic" Value="True" />
+        	</Style>
+        </Styles>
+        """;
+
+        var page = new Page()
+        {
+            Toolbar = new Toolbar()
+            {
+                Children = [
+                    new Button(),
+                    new Button(),
+                ]
+            },
+            CollectionView = new CollectionView()
+            {
+                Bindings = b => b.BindImpl.SetBinding("name", new Bind())
+            },
+            Children = [
+                new Card(),
+                new Alert(),
+                new Alert(),
+            ]
+        };
+
+        page.CollectionView.BindImpl.SetBinding("ItemsSource", new Bind("CollectionViewPath"));
+
+        var writtenStr = XamlServices.Write(page);
+
+        int z = 55;
+    }
+
+
 }
