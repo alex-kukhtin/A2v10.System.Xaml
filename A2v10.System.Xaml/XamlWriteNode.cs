@@ -32,7 +32,8 @@ public class XamlWriteNode(String name)
             Namespace = nsp,
             ContentProperty = cp,
         };
-        if (parent == null) {
+        if (parent == null)
+        {
             if (node.AddCollectionNode(tp, obj, parent))
                 return node;
         }
@@ -72,6 +73,16 @@ public class XamlWriteNode(String name)
         {
             var enumText = value.ToString();
             var defEnum = Enum.GetName(prop.PropertyType, 0);
+            if (enumText != defEnum)
+                Properties.Add(new XamlWriteProp(prop.Name, enumText, isContentProp));
+            return;
+        }
+        // underlaying
+        var enumUnder = Nullable.GetUnderlyingType(prop.PropertyType);
+        if (enumUnder != null && enumUnder.IsEnum)
+        {
+            var enumText = value.ToString();
+            var defEnum = Enum.GetName(enumUnder, 0);
             if (enumText != defEnum)
                 Properties.Add(new XamlWriteProp(prop.Name, enumText, isContentProp));
             return;
@@ -238,7 +249,7 @@ public class XamlWriteNode(String name)
         yield return this;
         foreach (var prop in Properties)
         {
-            if (prop.Value is XamlWriteNode obj1)  
+            if (prop.Value is XamlWriteNode obj1)
                 foreach (var n1 in obj1.AllElements())
                     yield return n1;
             else if (prop.Value is IEnumerable iEnum)

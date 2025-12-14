@@ -52,7 +52,7 @@ public partial class TextXamlWriter
                     <Button Icon="File" Content="Reload"/>
                 </Toolbar>
             </Page.Toolbar>
-            <Grid>
+            <Grid Overflow="Auto">
                 <Button Grid.Row="2" Grid.Col="3" Content="2:3"/>
                 <Button Grid.Row="1" Grid.Col="5" Content="1:5"/>
             </Grid>
@@ -71,7 +71,8 @@ public partial class TextXamlWriter
         };
         var grid = new Grid(sp)
         {
-            Children = [b1, b2]
+            Children = [b1, b2],
+            Overflow = Overflow.Auto
         };
         var page = new Page()
         {

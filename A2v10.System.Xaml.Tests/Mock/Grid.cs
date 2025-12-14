@@ -20,6 +20,15 @@ public class RowDefinitions : List<RowDefinition>, IXamlConverter
     }
 }
 
+public enum Overflow
+{
+    Visible,
+    Hidden,
+    Auto,
+    True = Visible,
+    False = Hidden,
+}
+
 [AttachedProperties("Col,Row")]
 [ContentProperty("Children")]
 public class Grid(IServiceProvider serviceProvider) : Container, ISupportAttached
@@ -28,6 +37,9 @@ public class Grid(IServiceProvider serviceProvider) : Container, ISupportAttache
 
 
     public RowDefinitions? Rows { get; set; }
+
+    public Overflow? Overflow { get; set; }
+
     #region Attached Properties
 
     // for testing attached properties  
