@@ -38,6 +38,10 @@ public class XamlWriter
     {
         writer.WriteStartElement(node.Name, node.Namespace);
 
+        // first attribute!!!!
+        if (bRoot)
+            writer.WriteAttributeString("xmlns", String.Empty, null, node.Namespace);
+
         if (bRoot && _hasDictionary)
             writer.WriteAttributeString("xmlns", "x", null, X_NS);
 

@@ -83,24 +83,27 @@ public class XamlReader
 
 	void ReadAttributes(XamlNode node, NodeBuilder builder)
 	{
+		// two passes: xmlns, properties
 		for (var i = 0; i < _rdr.AttributeCount; i++)
 		{
 			_rdr.MoveToAttribute(i);
-			if (_rdr.Name.StartsWith("xmlns"))
-			{
-				var prefix = _rdr.Name[5..];
-				if (prefix.StartsWith(':'))
-					prefix = prefix[1..];
-				builder.AddNamespace(prefix, _rdr.Value);
-			}
-			else
-			{
-				node.AddProperty(builder, _rdr.Name, _rdr.Value);
-			}
+			if (!_rdr.Name.StartsWith("xmlns"))
+				continue;
+			var prefix = _rdr.Name[5..];
+			if (prefix.StartsWith(':'))
+				prefix = prefix[1..];
+			builder.AddNamespace(prefix, _rdr.Value);
 		}
-	}
+        for (var i = 0; i < _rdr.AttributeCount; i++)
+        {
+            _rdr.MoveToAttribute(i);
+			if (_rdr.Name.StartsWith("xmlns"))
+				continue;
+            node.AddProperty(builder, _rdr.Name, _rdr.Value);
+        }
+    }
 
-	void StartNode(XamlNode node)
+    void StartNode(XamlNode node)
 	{
 		_elemStack.Push(node);
 	}
