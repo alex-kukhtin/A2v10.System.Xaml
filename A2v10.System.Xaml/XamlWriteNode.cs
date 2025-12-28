@@ -67,6 +67,9 @@ public class XamlWriteNode(String name)
         if (value == null)
             return;
 
+        if (!prop.CanWrite)
+            return;
+
         Boolean isContentProp = prop.Name == ContentProperty;
 
         if (prop.PropertyType.IsEnum)

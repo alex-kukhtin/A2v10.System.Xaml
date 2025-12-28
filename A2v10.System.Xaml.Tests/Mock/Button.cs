@@ -23,6 +23,7 @@ public class Button :  UIElementBase
 	public Boolean Underline { get; set; }
 	public Boolean Bold { get; set; }
     public Int32 TabIndex { get; set; }
+	public Boolean ReadOnly => TabIndex == 0; // can't write in xaml
 
     private readonly Lazy<UIElementCollection> _addOns = new();
 

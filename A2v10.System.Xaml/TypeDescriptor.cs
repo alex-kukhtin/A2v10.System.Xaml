@@ -58,7 +58,7 @@ public class TypeDescriptor(Type nodeType, String typeName,
 			}
 		}
 		else if (!propInfo.CanWrite)
-			throw new XamlException($"Property {propInfo.PropertyType} is read only");
+			throw new XamlException($"Property {propInfo.Name} is read only");
 		else
 			propInfo.SetValue(instance, val);
 	}
