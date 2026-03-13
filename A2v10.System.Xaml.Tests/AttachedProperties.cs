@@ -17,9 +17,12 @@ namespace A2v10.System.Xaml.Tests
 """;
 			var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
 
-			Assert.AreEqual(typeof(Grid), obj.GetType());
+            var parsedGrid = XamlServices.Parse<Grid>(xaml, XamlServicesOptions.BpmnXamlOptions);
+
+            Assert.AreEqual(typeof(Grid), obj.GetType());
 			var grid = obj as Grid;
-			Assert.IsNotNull(grid);
+            Assert.AreEqual(typeof(Grid), parsedGrid.GetType());
+            Assert.IsNotNull(grid);
 			Assert.HasCount(2, grid.Children);
 			var btn1 = grid.Children[0] as Button;
             Assert.IsNotNull(btn1);

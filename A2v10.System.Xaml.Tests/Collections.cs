@@ -92,10 +92,8 @@ public class Collections
         
 		static void __Test(String xaml)
 		{
-			var obj = XamlServices.Parse(xaml, null);
+			var c = XamlServices.Parse<Component>(xaml, null);
 
-			Assert.AreEqual(typeof(Component), obj.GetType());
-			var c = obj as Component;
 			Assert.IsNotNull(c);
 
 			var slots = c.Slots;

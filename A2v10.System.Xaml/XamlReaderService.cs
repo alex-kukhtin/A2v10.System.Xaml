@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2026 Oleksandr Kukhtin. All rights reserved.
 
 using System.IO;
 using System.Xml;
@@ -22,19 +22,38 @@ public class XamlReaderService : IXamlReaderService
 		using var xmlrdr = XmlReader.Create(stringReader, _settings);
 		return Load(xmlrdr);
 	}
+    public T ParseXml<T>(String xml) where T : class
+    {
+        using var stringReader = new StringReader(xml);
+        using var xmlrdr = XmlReader.Create(stringReader, _settings);
+        return Load<T>(xmlrdr);
+    }
 
-	public Object Load(Stream stream, Uri? baseUri = null)
+    public Object Load(Stream stream, Uri? baseUri = null)
 	{
 		var xaml = new XamlReader(XmlReader.Create(stream, _settings), baseUri, _typeDescriptorCache, Options);
 		Options?.OnCreateReader?.Invoke(xaml);
 		return xaml.Read() ?? throw new XamlException("Load failed (Stream)");
 	}
+    public T Load<T>(Stream stream, Uri? baseUri = null) where T: class
+    {
+        var xaml = new XamlReader(XmlReader.Create(stream, _settings), baseUri, _typeDescriptorCache, Options);
+        Options?.OnCreateReader?.Invoke(xaml);
+        return xaml.Read<T>() ?? throw new XamlException("Load failed (Stream)");
+    }
 
-	public Object Load(XmlReader rdr, Uri? baseUri = null)
+    public Object Load(XmlReader rdr, Uri? baseUri = null)
 	{
 		var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
 		Options?.OnCreateReader?.Invoke(xaml);
 		return xaml.Read() ?? throw new XamlException("Load fialed (XmlReader)");
 	}
+
+    public T Load<T>(XmlReader rdr, Uri? baseUri = null) where T: class
+    {
+        var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
+        Options?.OnCreateReader?.Invoke(xaml);
+        return xaml.Read<T>() ?? throw new XamlException("Load fialed (XmlReader)");
+    }
 }
 

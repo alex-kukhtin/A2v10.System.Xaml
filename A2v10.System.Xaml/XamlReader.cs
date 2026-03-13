@@ -27,8 +27,12 @@ public class XamlReader
 			uriContext?.BaseUri = baseUri;
 		}
 	}
+    public T? Read<T>() where T: class
+	{
+		return Read() as T;
+	}
 
-	public Object? Read()
+    public Object? Read()
 	{
 		var nodeBuilder = new NodeBuilder(_xamlServiceProvider, _typeCache, _options);
 		while (_rdr.Read())
