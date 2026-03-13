@@ -12,9 +12,9 @@
 * **Lightweight** — zero external dependencies; no WPF or Windows runtime required
 * **Fast** — optimized for high-throughput server-side XAML parsing
 * **Cross-platform** — targets .NET Standard 2.1 and .NET 6+, runs on Linux, macOS, and Windows
-* **Standard-compatible** — mirrors the familiar `System.Xaml` API surface
-* **Markup extension support** — handles `{Binding}`, `{StaticResource}`, and custom markup extensions
-* **Escape sequence support** — use `{}` to include literal braces in property values
+* **Standard-compatible** — mirrors the familiar *System.Xaml* API surface
+* **Markup extension support** — handles *&#123;Binding&#125;*, *&#123;StaticResource&#125;*, and custom markup extensions
+* **Escape sequence support** — use &#123;&#125; to include literal braces in property values
 
 # Quick Start
 
