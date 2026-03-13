@@ -46,14 +46,14 @@ public class XamlReaderService : IXamlReaderService
 	{
 		var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
 		Options?.OnCreateReader?.Invoke(xaml);
-		return xaml.Read() ?? throw new XamlException("Load fialed (XmlReader)");
+		return xaml.Read() ?? throw new XamlException("Load failed (XmlReader)");
 	}
 
     public T Load<T>(XmlReader rdr, Uri? baseUri = null) where T: class
     {
         var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
         Options?.OnCreateReader?.Invoke(xaml);
-        return xaml.Read<T>() ?? throw new XamlException("Load fialed (XmlReader)");
+        return xaml.Read<T>() ?? throw new XamlException("Load failed (XmlReader)");
     }
 }
 

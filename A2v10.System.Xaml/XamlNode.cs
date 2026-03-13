@@ -1,6 +1,5 @@
-﻿// Copyright © 2021-2025 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2026 Oleksandr Kukhtin. All rights reserved.
 
-using System.Linq;
 using System.Reflection;
 
 namespace A2v10.System.Xaml;
@@ -35,13 +34,15 @@ public class XamlNode(String name)
 		}
 	}
 
+    //Where(x => x.Key == "Key").FirstOrDefault().Value is not SpecialPropertyDescriptor keyProp)
+    
 	public String XKeyName
 	{
 		get
 		{
-			if (Properties.Where(x => x.Key == "Key").FirstOrDefault().Value is not SpecialPropertyDescriptor keyProp)
+			if (!Properties.TryGetValue("Key", out var keyProp) || keyProp is not SpecialPropertyDescriptor spd) 
 				throw new XamlException($"Property Key not found in type {Name}");
-			return keyProp.Name;
+			return spd.Name;
 		}
 	}
 
