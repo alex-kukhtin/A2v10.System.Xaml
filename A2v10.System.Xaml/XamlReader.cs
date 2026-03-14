@@ -25,7 +25,7 @@ public class XamlReader
         if (baseUri != null)
         {
             var uriContext = _xamlServiceProvider.GetService<IUriContext>();
-            uriContext?.BaseUri = baseUri;
+            uriContext.BaseUri = baseUri;
         }
     }
     public T? Read<T>() where T : class

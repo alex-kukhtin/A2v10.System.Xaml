@@ -176,7 +176,9 @@ public class ExtensionParser
 						}
 						NextChar();
 					}
-				}
+                    // exit by NULL_CHAR
+                    throw new XamlException($"Unterminated markup extension in '{_text}'");
+                }
 				break;
 			case '\'':
 				_tokenType = TokenType.String;

@@ -98,7 +98,7 @@ public class ReadExtensions
 	[TestMethod]
 	public void Full()
 	{
-		string xaml = @"
+		String xaml = @"
 <Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
 	Content=""Text"" Icon=""{Bind Icon}"" Command=""{BindCmd Execute, CommandName='File', Argument={Bind Path='Text'}}"">
 </Button>
@@ -174,5 +174,18 @@ public class ReadExtensions
 		var bind = tb.GetBinding("Content");
 		Assert.IsNotNull(bind);
 		Assert.AreEqual("Parent.Pager", bind.Path);
+	}
+
+	[TestMethod]
+	public void FullError()
+	{
+		String xaml = @"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
+			Content=""Text"" Icon=""{Bind Icon"">
+		</Button>
+		";
+		
+		
+		Assert.Throws<ArgumentException>(() => XamlServices.Parse(xaml, null));
 	}
 }

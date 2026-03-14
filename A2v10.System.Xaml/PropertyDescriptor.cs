@@ -37,13 +37,11 @@ public record PropertyDescriptor
 			}
 			else
 			{
-				var key = nd.Properties["Key"];
-				if (key is SpecialPropertyDescriptor spec)
-				{
-					var dVal = builder.BuildNode(nd);
-					if (dVal != null)
-						AddDictionaryMethod(dict, spec.Name, dVal);
-				}
+                if (!nd.Properties.TryGetValue("Key", out var key) || key is not SpecialPropertyDescriptor spec)
+                    throw new XamlException($"Property 'Key' not found in node '{nd.Name}'");
+                var dVal = builder.BuildNode(nd);
+				if (dVal != null)
+					AddDictionaryMethod(dict, spec.Name, dVal);
 			}
 		}
 	}
