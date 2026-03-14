@@ -77,9 +77,6 @@ public class XamlReader
             case XmlNodeType.Text:
                 AddContent();
                 break;
-            case XmlNodeType.XmlDeclaration:
-                AddDeclaration();
-                break;
             case XmlNodeType.CDATA:
                 AddContent();
                 break;
@@ -124,10 +121,6 @@ public class XamlReader
         var ch = _elemStack.Pop();
         var parent = _elemStack.Peek();
         parent.AddChildren(ch, builder);
-    }
-
-    static void AddDeclaration()
-    {
     }
 
     public void InjectService<T>(T service)

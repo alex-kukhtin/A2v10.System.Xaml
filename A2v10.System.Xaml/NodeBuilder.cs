@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.ComponentModel.Design.Serialization;
 
 namespace A2v10.System.Xaml;
 
@@ -72,7 +73,10 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 	private static Regex NsRegex() => NSREGEX;
 #endif
 
-	public void AddNamespace(String prefix, String value)
+    private Assembly LoadAssembly(String name)
+          => (name == "Self") ? Assembly.GetExecutingAssembly() : Assembly.Load(name);
+
+    public void AddNamespace(String prefix, String value)
 	{
 		if (_namespaces.ContainsKey(prefix))
 			return;
@@ -85,7 +89,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		var nsddef = IsCustomNamespace(value);
 		if (nsddef != null)
 		{
-			var ass = nsddef.Assembly == "Self" ? Assembly.GetExecutingAssembly() : Assembly.Load(nsddef.Assembly);
+            var ass = LoadAssembly(nsddef.Assembly);
 			var nsd = new NamespaceDefinition(nsddef.Namespace, ass)
 			{
 				IsCamelCase = nsddef.IsCamelCase,
@@ -99,7 +103,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		{
 			var assemblyName = match.Groups[2].Value.Trim();
 			var nameSpace = match.Groups[1].Value.Trim();
-			var nsd = new NamespaceDefinition(nameSpace, Assembly.Load(assemblyName));
+			var nsd = new NamespaceDefinition(nameSpace, LoadAssembly(assemblyName));
 			_namespaces.Add(prefix, nsd);
 		}
 	}
@@ -384,7 +388,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 
 	public void ProcessExtensions(List<XamlExtensionElem> elems, Object target)
 	{
-		if (elems == null || elems.Count == 0)
+		if (elems.Count == 0)
 			return;
 		var valueTarget = serviceProvider.ProvideValueTarget;
 		foreach (var ext in elems)
