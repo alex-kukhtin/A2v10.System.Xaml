@@ -1,4 +1,5 @@
-﻿using A2v10.System.Xaml.Tests.Mock;
+﻿
+using A2v10.System.Xaml.Tests.Mock;
 
 namespace A2v10.System.Xaml.Tests
 {

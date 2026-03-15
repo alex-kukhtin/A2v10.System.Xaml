@@ -1,44 +1,43 @@
-﻿using A2v10.System.Xaml.Tests.Mock;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿
+using A2v10.System.Xaml.Tests.Mock;
 
-namespace A2v10.System.Xaml.Tests
+namespace A2v10.System.Xaml.Tests;
+
+[TestClass]
+[TestCategory("Xaml.Enum")]
+public class EnumParser
 {
-	[TestClass]
-	[TestCategory("Xaml.Enum")]
-	public class EnumParser
+	[TestMethod]
+	public void DefaultEnum()
 	{
-		[TestMethod]
-		public void DefaultEnum()
-		{
-			string xaml = @"
-<Variable xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
-	Name=""Var0"">
-</Variable>
-";
-			var obj = XamlServices.Parse(xaml, null);
+		String xaml = """
+			<Variable xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests" 
+				Name="Var0">
+			</Variable>
+			""";
+		var obj = XamlServices.Parse(xaml, null);
 
-			Assert.AreEqual(typeof(Variable), obj.GetType());
-			var v = obj as Variable;
-			Assert.IsNotNull(v);	
-			Assert.AreEqual("Var0", v.Name);
-			Assert.AreEqual(VariableType.String, v.Type);
-		}
+		Assert.AreEqual(typeof(Variable), obj.GetType());
+		var v = obj as Variable;
+		Assert.IsNotNull(v);	
+		Assert.AreEqual("Var0", v.Name);
+		Assert.AreEqual(VariableType.String, v.Type);
+	}
 
-		[TestMethod]
-		public void SimpleEnum()
-		{
-			string xaml = @"
-<Variable xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
-	Name=""Var0"" Type=""String"">
-</Variable>
-";
-			var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
+	[TestMethod]
+	public void SimpleEnum()
+	{
+		String xaml = """
+			<Variable xmlns="clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests" 
+				Name="Var0" Type="String">
+			</Variable>
+			""";
+		var obj = XamlServices.Parse(xaml, XamlServicesOptions.BpmnXamlOptions);
 
-			Assert.AreEqual(typeof(Variable), obj.GetType());
-			var v = obj as Variable;
-			Assert.IsNotNull(v);
-			Assert.AreEqual("Var0", v.Name);
-			Assert.AreEqual(VariableType.String, v.Type);
-		}
+		Assert.AreEqual(typeof(Variable), obj.GetType());
+		var v = obj as Variable;
+		Assert.IsNotNull(v);
+		Assert.AreEqual("Var0", v.Name);
+		Assert.AreEqual(VariableType.String, v.Type);
 	}
 }

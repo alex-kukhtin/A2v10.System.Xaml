@@ -1,4 +1,4 @@
-﻿// Copyright © 2021 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2026 Oleksandr Kukhtin. All rights reserved.
 
 using System.ComponentModel;
 using System.Globalization;
@@ -20,9 +20,12 @@ public static class PropertyConvertor
 
 		if (valueType.IsAssignableTo(type))
 			return value;
-			
-		if (type.IsEnum)
-			return Enum.Parse(type, value.ToString()!, true);
+
+		if (type.IsEnum) {
+			if (Enum.TryParse(type, value.ToString()!, ignoreCase: true, out Object? val))
+				return val;
+			throw new XamlException($"Invalid enum value '{value}' for '{type.Name}'");
+		}
 
 		if (typeConverter != null)
 		{

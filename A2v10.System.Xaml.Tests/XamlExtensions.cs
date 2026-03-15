@@ -186,6 +186,6 @@ public class ReadExtensions
 		";
 		
 		
-		Assert.Throws<ArgumentException>(() => XamlServices.Parse(xaml, null));
+		Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
 	}
 }

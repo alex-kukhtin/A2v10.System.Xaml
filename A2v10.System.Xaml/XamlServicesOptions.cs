@@ -1,4 +1,4 @@
-﻿// Copyright © 2021-2025 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2026 Oleksandr Kukhtin. All rights reserved.
 
 namespace A2v10.System.Xaml;
 public record NamespaceDef(String Name, Boolean IsCamelCase, String Namespace, String Assembly, Boolean IsSkip);
@@ -8,7 +8,8 @@ public class XamlServicesOptions(NamespaceDef[] namespaces)
     public NamespaceDef[] Namespaces { get; } = namespaces;
     public Dictionary<String, String>? Aliases { get; init; }
 	public Boolean DisableMarkupExtensions { get; init; }
-	public Boolean SkipUnknownProperties { get; init; }	
+	public Boolean SkipUnknownProperties { get; init; }
+    public Boolean UseInternalAttached { get; init; }
     public Action<XamlReader>? OnCreateReader { get; init; }
 
     // A2v10.Workflow.Bpmn.Diagram, A2v10.Workflow

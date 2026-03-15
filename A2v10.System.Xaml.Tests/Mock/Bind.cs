@@ -86,7 +86,8 @@ public abstract class BindBase : MarkupExtension, ISupportBinding
 
 	public override Object? ProvideValue(IServiceProvider serviceProvider)
 	{
-		if (serviceProvider.GetService(typeof(IProvideValueTarget)) is not IProvideValueTarget iTarget)
+		var iTarget = serviceProvider.GetXamlService<IProvideValueTarget>();
+		if (iTarget == null)
 			return null;
 		if (iTarget.TargetProperty is not PropertyInfo targetProp ||
 			iTarget.TargetObject is not ISupportBinding targetObj)
@@ -122,8 +123,9 @@ public class Bind : BindBase, ISupportInitialize
 	public Boolean HideZeros { get; set; }
 	public String? Mask { get; set; }
 	public Boolean NegativeRed { get; set; }
+    public Object? Argument { get; set; }
 
-	public Bind()
+    public Bind()
 	{
 
 	}

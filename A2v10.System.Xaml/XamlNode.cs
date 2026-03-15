@@ -34,8 +34,6 @@ public class XamlNode(String name)
 		}
 	}
 
-    //Where(x => x.Key == "Key").FirstOrDefault().Value is not SpecialPropertyDescriptor keyProp)
-    
 	public String XKeyName
 	{
 		get

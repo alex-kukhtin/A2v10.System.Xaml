@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.ComponentModel.Design.Serialization;
 
 namespace A2v10.System.Xaml;
 
@@ -61,7 +60,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 	public Boolean EnableMarkupExtensions => options == null || !options.DisableMarkupExtensions;
 	public Boolean SkipUnknownProperties => options?.SkipUnknownProperties ?? false;
 
-    public IAttachedPropertyManager AttachedPropertyManager => serviceProvider.GetService<IAttachedPropertyManager>();
+    public IAttachedPropertyManager? AttachedPropertyManager => serviceProvider.GetService<IAttachedPropertyManager>();
 
 
 	const String NS_PATTERN = @"^\s*clr-namespace\s*:\s*([\w\.]+)\s*;\s*assembly\s*=\s*([\w\.]+)\s*$";
@@ -73,7 +72,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 	private static Regex NsRegex() => NSREGEX;
 #endif
 
-    private Assembly LoadAssembly(String name)
+    private static Assembly LoadAssembly(String name)
           => (name == "Self") ? Assembly.GetExecutingAssembly() : Assembly.Load(name);
 
     public void AddNamespace(String prefix, String value)

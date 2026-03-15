@@ -130,11 +130,10 @@ public partial class TextXamlWriter
         grid.SetRow(b2, 1);
         grid.SetCol(b2, 5);
 
-        grid.Rows = new RowDefinitions()
-        {
+        grid.Rows = [
             new RowDefinition() {Height = Length.FromString("Auto")  },
             new RowDefinition() {Height = Length.FromString("12rem") },
-        };
+        ];
 
         var writtenStr = XamlServices.Write(grid);
 

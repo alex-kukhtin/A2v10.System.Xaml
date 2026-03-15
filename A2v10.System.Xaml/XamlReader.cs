@@ -21,10 +21,10 @@ public class XamlReader
         _options = options;
 
         _elemStack.Push(_root);
-        _xamlServiceProvider = new XamlServiceProvider();
+        _xamlServiceProvider = new XamlServiceProvider(options?.UseInternalAttached ?? false);
         if (baseUri != null)
         {
-            var uriContext = _xamlServiceProvider.GetService<IUriContext>();
+            var uriContext = _xamlServiceProvider.GetRequiredXamlService<IUriContext>();
             uriContext.BaseUri = baseUri;
         }
     }

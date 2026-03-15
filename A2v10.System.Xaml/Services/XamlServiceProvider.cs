@@ -12,11 +12,12 @@ public class XamlServiceProvider : IServiceProvider
 	private readonly XamlUriContext _uriContext = new();
 
 
-	public XamlServiceProvider()
+	public XamlServiceProvider(Boolean useInternalAttached = false)
 	{
 		AddService<IProvideValueTarget>(_provideValueTarget);
 		AddService<IRootObjectProvider>(_rootObjectProvider);
-		AddService<IAttachedPropertyManager>(_attachedPropertyManager);
+		if (!useInternalAttached)
+			AddService<IAttachedPropertyManager>(_attachedPropertyManager);
 		AddService<IUriContext>(_uriContext);
 	}
 
@@ -30,19 +31,18 @@ public class XamlServiceProvider : IServiceProvider
 		_services.Add(serviceType, service);
 	}
 
-
-	public Object GetService(Type serviceType)
+	public Object? GetService(Type serviceType)
 	{
 		if (_services.TryGetValue(serviceType, out Object? service))
 			return service;
-		throw new XamlException($"Service '{serviceType}' not found");
+		return null;
 	}
 
-	public T GetService<T>()
+	public T? GetService<T>()
 	{
 		if (_services.TryGetValue(typeof(T), out Object? service))
 			return (T) service;
-		throw new XamlException($"Service '{typeof(T)}' not found");
+		return default;
 	}
 
 	public XamlProvideValueTarget ProvideValueTarget => _provideValueTarget;

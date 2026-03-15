@@ -1,8 +1,6 @@
-﻿// Copyright © 2025 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2025-2026 Oleksandr Kukhtin. All rights reserved.
 
 using System.Linq;
-
-using Microsoft.Testing.Platform.Services;
 
 namespace A2v10.System.Xaml.Tests.Mock;
 
@@ -33,7 +31,7 @@ public enum Overflow
 [ContentProperty("Children")]
 public class Grid(IServiceProvider serviceProvider) : Container, ISupportAttached
 {
-    private readonly IAttachedPropertyManager _attachedPropertyManager = serviceProvider.GetRequiredService<IAttachedPropertyManager>();
+    private readonly IAttachedPropertyManager _attachedPropertyManager = serviceProvider.GetRequiredXamlService<IAttachedPropertyManager>();
 
 
     public RowDefinitions? Rows { get; set; }
