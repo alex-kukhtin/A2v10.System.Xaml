@@ -101,6 +101,8 @@ public class XamlReader
             _rdr.MoveToAttribute(i);
             if (_rdr.Name.StartsWith("xmlns"))
                 continue;
+            if (_rdr.Name.StartsWith("xml:"))
+                continue;
             node.AddProperty(builder, _rdr.Name, _rdr.Value);
         }
     }
