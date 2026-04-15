@@ -4,8 +4,8 @@
 		<LangVersion>Latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
-		<Version>10.1.8051</Version>
-		<AssemblyVersion>10.1.8051</AssemblyVersion>
+		<Version>10.1.8052</Version>
+		<AssemblyVersion>10.1.8052</AssemblyVersion>
 		<Product>A2v10</Product>
 		<Authors>Oleksandr Kukthin</Authors>
 		<Copyright>Copyright © 2020-2026 Oleksandr Kukhtin. All rights reserved.</Copyright>
@@ -26,7 +26,7 @@
 		<IsPublishable>True</IsPublishable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.201" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.202" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>
