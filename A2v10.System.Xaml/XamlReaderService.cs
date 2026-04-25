@@ -4,24 +4,25 @@ using System.IO;
 using System.Xml;
 
 namespace A2v10.System.Xaml;
-public class XamlReaderService : IXamlReaderService
+
+public class XamlReaderService(TypeDescriptorCache? cache = null) : IXamlReaderService
 {
-	private readonly TypeDescriptorCache _typeDescriptorCache = new();
+    private readonly TypeDescriptorCache _typeDescriptorCache = cache ?? new TypeDescriptorCache();
 
-	public virtual XamlServicesOptions? Options { get; set; }
+    public virtual XamlServicesOptions? Options { get; set; }
 
-	private static readonly XmlReaderSettings _settings = new()
-	{
-		IgnoreComments = true,
-		IgnoreWhitespace = false
-	};
+    private static readonly XmlReaderSettings _settings = new()
+    {
+        IgnoreComments = true,
+        IgnoreWhitespace = false
+    };
 
-	public Object ParseXml(String xml)
-	{
-		using var stringReader = new StringReader(xml);
-		using var xmlrdr = XmlReader.Create(stringReader, _settings);
-		return Load(xmlrdr);
-	}
+    public Object ParseXml(String xml)
+    {
+        using var stringReader = new StringReader(xml);
+        using var xmlrdr = XmlReader.Create(stringReader, _settings);
+        return Load(xmlrdr);
+    }
     public T ParseXml<T>(String xml) where T : class
     {
         using var stringReader = new StringReader(xml);
@@ -30,26 +31,29 @@ public class XamlReaderService : IXamlReaderService
     }
 
     public Object Load(Stream stream, Uri? baseUri = null)
-	{
-		var xaml = new XamlReader(XmlReader.Create(stream, _settings), baseUri, _typeDescriptorCache, Options);
-		Options?.OnCreateReader?.Invoke(xaml);
-		return xaml.Read() ?? throw new XamlException("Load failed (Stream)");
-	}
-    public T Load<T>(Stream stream, Uri? baseUri = null) where T: class
     {
-        var xaml = new XamlReader(XmlReader.Create(stream, _settings), baseUri, _typeDescriptorCache, Options);
+        using var xmlReader = XmlReader.Create(stream, _settings);
+        var xaml = new XamlReader(xmlReader, baseUri, _typeDescriptorCache, Options);
+        Options?.OnCreateReader?.Invoke(xaml);
+        return xaml.Read() ?? throw new XamlException("Load failed (Stream)");
+    }
+
+    public T Load<T>(Stream stream, Uri? baseUri = null) where T : class
+    {
+        using var xmlReader = XmlReader.Create(stream, _settings);
+        var xaml = new XamlReader(xmlReader, baseUri, _typeDescriptorCache, Options);
         Options?.OnCreateReader?.Invoke(xaml);
         return xaml.Read<T>() ?? throw new XamlException("Load failed (Stream)");
     }
 
     public Object Load(XmlReader rdr, Uri? baseUri = null)
-	{
-		var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
-		Options?.OnCreateReader?.Invoke(xaml);
-		return xaml.Read() ?? throw new XamlException("Load failed (XmlReader)");
-	}
+    {
+        var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
+        Options?.OnCreateReader?.Invoke(xaml);
+        return xaml.Read() ?? throw new XamlException("Load failed (XmlReader)");
+    }
 
-    public T Load<T>(XmlReader rdr, Uri? baseUri = null) where T: class
+    public T Load<T>(XmlReader rdr, Uri? baseUri = null) where T : class
     {
         var xaml = new XamlReader(rdr, baseUri, _typeDescriptorCache, Options);
         Options?.OnCreateReader?.Invoke(xaml);

@@ -68,7 +68,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 	[GeneratedRegex(NS_PATTERN, RegexOptions.None, "en-US")]
 	private static partial Regex NsRegex();
 #else
-	private static Regex NSREGEX => new(NS_PATTERN, RegexOptions.Compiled);
+	private static readonly Regex NSREGEX = new(NS_PATTERN, RegexOptions.Compiled);
 	private static Regex NsRegex() => NSREGEX;
 #endif
 

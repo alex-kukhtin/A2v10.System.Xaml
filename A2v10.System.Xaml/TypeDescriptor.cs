@@ -50,7 +50,7 @@ public class TypeDescriptor(Type nodeType, String typeName,
         var val = PropertyConvertor.ConvertValue(value, propInfo.PropertyType, propDef.TypeConverter);
         if (propDef.AddMethod != null && !propInfo.CanWrite)
         {
-            if (value is ICollection collSource)
+            if (val is ICollection collSource)
             {
                 // copy from source value
                 var target = propInfo.GetValue(instance) ?? throw new XamlException("Invalid target value");

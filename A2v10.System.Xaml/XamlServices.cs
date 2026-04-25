@@ -7,9 +7,10 @@ namespace A2v10.System.Xaml;
 
 public static class XamlServices
 {
-	public static Object Parse(String xaml, XamlServicesOptions? options = null)
+	private static readonly TypeDescriptorCache _typeDescriptorCache = new();
+    public static Object Parse(String xaml, XamlServicesOptions? options = null)
 	{
-		var xamlReader = new XamlReaderService()
+		var xamlReader = new XamlReaderService(_typeDescriptorCache)
 		{
 			Options = options
 		};
@@ -18,7 +19,7 @@ public static class XamlServices
 
 	public static Object Load(Stream stream, XamlServicesOptions? options = null)
 	{
-		var xamlReader = new XamlReaderService()
+		var xamlReader = new XamlReaderService(_typeDescriptorCache)
 		{
 			Options = options
 		};
@@ -27,7 +28,7 @@ public static class XamlServices
 
 	public static Object Load(XmlReader rdr, XamlServicesOptions? options = null)
 	{
-		var xamlReader = new XamlReaderService()
+		var xamlReader = new XamlReaderService(_typeDescriptorCache)
 		{
 			Options = options
 		};
