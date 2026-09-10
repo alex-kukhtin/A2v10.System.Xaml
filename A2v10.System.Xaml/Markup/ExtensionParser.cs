@@ -116,6 +116,8 @@ public class ExtensionParser
                     _node.AddConstructorArgument(TokenValue);
                     _state = State.Name;
                 }
+                else
+                    throw Unquoted();
                 break;
             case State.Value:
                 if (_tokenType == TokenType.String || _tokenType == TokenType.Ider)
@@ -129,10 +131,23 @@ public class ExtensionParser
             case State.Continue:
                 if (_tokenType == TokenType.Comma)
                     _state = State.Name;
-                else
+                else if (_tokenType == TokenType.RightCurly)
                     _state = State.End;
+                else
+                    throw Unquoted();
                 break;
         }
+    }
+
+    /* A space separates arguments, so a token arriving where a comma or a closing brace is due
+     * is the tail of an unquoted value. Ignoring it - what this parser did - kept the LAST token
+     * silently: {Bind Price * Qty} became a binding to Qty, visible only as an empty cell in the
+     * finished document. Nothing well-formed reaches here, so the throw costs no valid markup.
+     */
+    private XamlException Unquoted()
+    {
+        return new XamlException($"Unexpected '{TokenValue}' in markup extension '{_text}'. " +
+            "A value containing spaces must be quoted: {Bind 'Price * Qty'}");
     }
 
     void NextToken()

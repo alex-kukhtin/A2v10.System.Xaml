@@ -1,4 +1,4 @@
-// Copyright � 2022 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2022 Oleksandr Kukhtin. All rights reserved.
 
 using A2v10.System.Xaml.Tests.Mock;
 
@@ -180,12 +180,54 @@ public class ReadExtensions
 	public void FullError()
 	{
 		String xaml = @"
-		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests"" 
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
 			Content=""Text"" Icon=""{Bind Icon"">
 		</Button>
 		";
-		
-		
+
+
 		Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
+	}
+
+	[TestMethod]
+	public void UnquotedSpaceThrows()
+	{
+		// kept the last token silently before: {Bind Price * Qty} bound to Qty
+		String xaml = @"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{Bind Price * Qty}"">
+		</Button>
+		";
+
+		Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
+	}
+
+	[TestMethod]
+	public void UnquotedSpaceAfterPropertyThrows()
+	{
+		String xaml = @"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{Bind Sum, DataType=Currency and more}"">
+		</Button>
+		";
+
+		Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
+	}
+
+	[TestMethod]
+	public void QuotedSpaceIsOneValue()
+	{
+		String xaml = @"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{Bind 'Price * Qty'}"">
+		</Button>
+		";
+
+		var obj = XamlServices.Parse(xaml, null);
+		var btn = obj as Button;
+		Assert.IsNotNull(btn);
+		var bind = btn.GetBinding("Content");
+		Assert.IsNotNull(bind);
+		Assert.AreEqual("Price * Qty", bind.Path);
 	}
 }
