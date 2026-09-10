@@ -79,6 +79,19 @@ public class XamlNode(String name)
 	}
 
 
+	/* A dot in a name is three different things, and this is what tells them apart.
+	 *   'Type.Property'  where Type is this node's type OR any of its base types -> a nested
+	 *                    property of this very element (<Grid.Rows>), so the value is built into
+	 *                    that property. Hence the walk up BaseType: the markup may name the base
+	 *                    class that declares the property.
+	 *   'Other.Property' -> an attached property, kept aside as XamlAttachedElem and applied to
+	 *                    the target later by ProcessAttachedProperties.
+	 *   anything with more than one dot -> an error, and it is raised here rather than guessed.
+	 * Asked on the ELEMENT road only (AddChildren -> AddProperty(.., XamlNode)). A dotted
+	 * ATTRIBUTE needs no test: markup has no way to spell a nested property as an attribute, so
+	 * 'Grid.Row="1"' is attached by definition - which is why the other AddProperty sends every
+	 * dotted name straight to AttachedProperties.
+	 */
 	public static Boolean IsNestedProperty(XamlNode node, Type nodeType)
 	{
 		if (!node.Name.Contains('.'))

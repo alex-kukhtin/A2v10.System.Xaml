@@ -143,11 +143,16 @@ public class ExtensionParser
      * is the tail of an unquoted value. Ignoring it - what this parser did - kept the LAST token
      * silently: {Bind Price * Qty} became a binding to Qty, visible only as an empty cell in the
      * finished document. Nothing well-formed reaches here, so the throw costs no valid markup.
+     *
+     * Both places that hold a value arrive here - the argument (State.Equal) and a property value
+     * (State.Continue, e.g. {Bind Price, DataType = Currency and something}) - so the message
+     * names neither: it states the rule and quotes the whole extension, which is where the reader
+     * finds the spaces. The offending token alone would be ambiguous, since the tail of an
+     * unquoted value looks exactly like the next argument.
      */
     private XamlException Unquoted()
     {
-        return new XamlException($"Unexpected '{TokenValue}' in markup extension '{_text}'. " +
-            "A value containing spaces must be quoted: {Bind 'Price * Qty'}");
+        return new XamlException($"""Unexpected '{TokenValue}' in markup extension '{_text}'. A value containing spaces must be wrapped in single quotes - the argument and every property value alike.""");
     }
 
     void NextToken()

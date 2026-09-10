@@ -8,6 +8,17 @@ using System.Text.RegularExpressions;
 
 namespace A2v10.System.Xaml;
 
+/* A namespace is not only where a type is looked up: three flags on it change name resolution
+ * itself, and each one is read somewhere else.
+ *   IsSpecial   - the xaml namespace (x:Key, x:Name). The name is not a property of the type at
+ *                 all: QualifyPropertyName reports it, and it is kept as a
+ *                 SpecialPropertyDescriptor which BuildNode then skips.
+ *   IsCamelCase - the source spells names in camelCase, the code in PascalCase. Every type and
+ *                 property name coming from such a namespace passes ToPascalCase
+ *                 (GetNodeDescriptor for types, TypeDescriptor.MakeName for properties).
+ *   IsSkip      - elements of this namespace are dropped: GetNodeDescriptor returns null, and a
+ *                 node with no descriptor never becomes an object.
+ */
 public record NamespaceDefinition
 {
 	public NamespaceDefinition(String ns, Assembly ass)
@@ -43,6 +54,16 @@ public record NamespaceDefinition
 
 public record ClassNamePair(String Prefix, String Namespace, String ClassName, Boolean IsCamelCase);
 
+/* The second of two phases, and the phases share nothing. XamlReader turns markup into a tree of
+ * XamlNode - element names, raw attribute strings, children - and constructs no object of the
+ * target model; this class turns that tree into objects and never reads XML.
+ *
+ * Why the descriptor layer exists at all: everything reflective is paid ONCE PER TYPE, here in
+ * BuildTypeDescriptor, and kept in the type cache - constructors, property setters and attached
+ * setters all arrive as compiled delegates. Hence the build path (BuildNode and below) contains
+ * no reflection of its own: a node of a type already seen costs a dictionary lookup and a
+ * delegate call. Read the TypeDescriptor indirection as that trade, not as indirection.
+ */
 public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescriptorCache typeCache, XamlServicesOptions? options)
 {
 
@@ -149,6 +170,12 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		};
 	}
 
+	/* Where the reflection of the whole reader is spent, once per type (see the class comment).
+	 * Three constructor shapes are compiled because three are what the markup can ask for: a bare
+	 * element, an element built from the positional argument of a markup extension
+	 * (ExtensionParser fills XamlNode.ConstructorArgument), and one that wants the service
+	 * provider. Which of the three BuildNode picks, and in what order, is decided there.
+	 */
 	TypeDescriptor BuildTypeDescriptor(ClassNamePair namePair)
 	{
 		if (!_namespaces.TryGetValue(namePair.Prefix, out NamespaceDefinition? nsd))
@@ -346,7 +373,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 				continue;
 			if (propValue is MarkupExtension markup)
 			{
-				// deferred!
+				// collected, never evaluated here - see ProcessExtensions
 				var propInfo = nd.GetPropertyInfo(propKey);
 				node.Extensions.Add(new XamlExtensionElem(propInfo, markup));
 			}
@@ -385,6 +412,16 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 			a();
 	}
 
+	/* Markup extensions are deferred TWICE, and the order is the whole point. A {Binding} met while
+	 * properties are being set cannot be evaluated there: ProvideValue may ask the service provider
+	 * for the root object, and the root does not exist until the entire tree is built. So BuildNode
+	 * only collects extensions, this method only queues them, and XamlReader.Read calls
+	 * ExecuteDeferred AFTER SetRoot. Evaluating an extension in place would work for every
+	 * extension that ignores the root and quietly fail for the ones that do not.
+	 *
+	 * The target object and its PropertyInfo are captured now, because by execution time the
+	 * builder is walking somewhere else entirely.
+	 */
 	public void ProcessExtensions(List<XamlExtensionElem> elems, Object target)
 	{
 		if (elems.Count == 0)
