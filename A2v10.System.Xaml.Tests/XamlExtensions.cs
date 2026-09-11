@@ -230,4 +230,35 @@ public class ReadExtensions
 		Assert.IsNotNull(bind);
 		Assert.AreEqual("Price * Qty", bind.Path);
 	}
+
+	[TestMethod]
+	public void BacktickValueStaysTemplateLiteral()
+	{
+		// a single quote inside a single-quoted value closed it early: the path became uk-UA')
+		String xaml = @"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{Bind `Видаткова накладна № ${Document.Number} від ${Document.Date.toLocaleDateString('uk-UA')}`}"">
+		</Button>
+		";
+
+		var obj = XamlServices.Parse(xaml, null);
+		var btn = obj as Button;
+		Assert.IsNotNull(btn);
+		var bind = btn.GetBinding("Content");
+		Assert.IsNotNull(bind);
+		Assert.AreEqual("`Видаткова накладна № ${Document.Number} від ${Document.Date.toLocaleDateString('uk-UA')}`", bind.Path);
+	}
+
+	[TestMethod]
+	public void MissingClosingQuoteThrows()
+	{
+		// the end of the text passed for the closing quote: a Bind with no path, silently
+		String xaml = @"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{Bind 'Price * Qty}"">
+		</Button>
+		";
+
+		Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
+	}
 }

@@ -152,7 +152,7 @@ public class ExtensionParser
      */
     private XamlException Unquoted()
     {
-        return new XamlException($"""Unexpected '{TokenValue}' in markup extension '{_text}'. A value containing spaces must be wrapped in single quotes - the argument and every property value alike.""");
+        return new XamlException($"""Unexpected '{TokenValue}' in '{_text}'. Quote a value with spaces: 'text' or `template`.""");
     }
 
     void NextToken()
@@ -201,14 +201,34 @@ public class ExtensionParser
                     throw new XamlException($"Unterminated markup extension in '{_text}'");
                 }
                 break;
+            /* Two quotes, read the same way - up to the one that opened - and told apart by whose
+             * they are. A single quote belongs to the markup: it only delimits, so it is removed.
+             * A backtick belongs to the value: what it encloses is a JavaScript template literal,
+             * and stripped of its backticks that is plain text with '${...}' in it - so it stays,
+             * the way the '{' branch above keeps its braces. Each quote may appear inside the other,
+             * which is the whole reason for having two.
+             */
             case '\'':
+            case '`':
+                var quote = _ch;
                 _tokenType = TokenType.String;
                 NextChar();
-                while (_ch != '\'' && _ch != NULL_CHAR)
+                while (_ch != quote && _ch != NULL_CHAR)
                     NextChar();
+                // the end of the text used to pass for the closing quote: {Bind 'x} gave a Bind with no path
+                if (_ch == NULL_CHAR)
+                    throw new XamlException($"""Unclosed quote in '{_text}'""");
                 NextChar();
-                _tokenStart = tokPos + 1;
-                _tokenLen = _pos - tokPos - 2;
+                if (quote == '`')
+                {
+                    _tokenStart = tokPos;
+                    _tokenLen = _pos - tokPos;
+                }
+                else
+                {
+                    _tokenStart = tokPos + 1;
+                    _tokenLen = _pos - tokPos - 2;
+                }
                 break;
             default:
                 _tokenType = TokenType.Ider;
