@@ -72,6 +72,11 @@ public class XamlWriteNode(String name)
 
         Boolean isContentProp = prop.Name == ContentProperty;
 
+        // for a nullable property null already means "not set",
+        // so an explicit false/0/enum(0) is a value and is always written
+        var typeUnder = Nullable.GetUnderlyingType(prop.PropertyType);
+        Boolean isNullable = typeUnder != null;
+
         if (prop.PropertyType.IsEnum)
         {
             var enumText = value.ToString();
@@ -81,22 +86,18 @@ public class XamlWriteNode(String name)
             return;
         }
         // underlaying
-        var enumUnder = Nullable.GetUnderlyingType(prop.PropertyType);
-        if (enumUnder != null && enumUnder.IsEnum)
+        if (typeUnder != null && typeUnder.IsEnum)
         {
-            var enumText = value.ToString();
-            var defEnum = Enum.GetName(enumUnder, 0);
-            if (enumText != defEnum)
-                Properties.Add(new XamlWriteProp(prop.Name, enumText, isContentProp));
+            Properties.Add(new XamlWriteProp(prop.Name, value.ToString(), isContentProp));
             return;
         }
 
         (Boolean has, Object? val) = value switch
         {
             String isStr => (true, !String.IsNullOrWhiteSpace(isStr) ? isStr : null),
-            Boolean bVal => (true, bVal ? bVal.ToString() : null),
-            Int32 intVal => (true, intVal != 0 ? intVal.ToString() : null),
-            UInt32 uintVal => (true, uintVal != 0 ? uintVal.ToString() : null),
+            Boolean bVal => (true, (isNullable || bVal) ? bVal.ToString() : null),
+            Int32 intVal => (true, (isNullable || intVal != 0) ? intVal.ToString() : null),
+            UInt32 uintVal => (true, (isNullable || uintVal != 0) ? uintVal.ToString() : null),
             _ => (false, null)
         };
         if (has)

@@ -13,5 +13,6 @@ namespace A2v10.System.Xaml.Tests.Mock
 	{
 		public String? Name { get; set; }
 		public VariableType Type { get; set; }
+		public VariableType? TypeNullable { get; set; }
 	}
 }
