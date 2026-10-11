@@ -52,7 +52,10 @@ public record NamespaceDefinition
 	public Boolean IsSkip { get; set; }
 }
 
-public record ClassNamePair(String Prefix, String Namespace, String ClassName, Boolean IsCamelCase);
+public record ClassNamePair(String Prefix, String Namespace, String ClassName, Boolean IsCamelCase)
+{
+	internal String TypeName => $"{Namespace}.{ClassName}";
+}
 
 /* The second of two phases, and the phases share nothing. XamlReader turns markup into a tree of
  * XamlNode - element names, raw attribute strings, children - and constructs no object of the
@@ -176,13 +179,18 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 	 * (ExtensionParser fills XamlNode.ConstructorArgument), and one that wants the service
 	 * provider. Which of the three BuildNode picks, and in what order, is decided there.
 	 */
-	TypeDescriptor BuildTypeDescriptor(ClassNamePair namePair)
+	Type? FindType(ClassNamePair namePair)
 	{
 		if (!_namespaces.TryGetValue(namePair.Prefix, out NamespaceDefinition? nsd))
 			throw new XamlException($"Namespace {namePair.Namespace} not found");
-		String typeName = $"{namePair.Namespace}.{namePair.ClassName}";
-		var nodeType = nsd.Assembly.GetType(typeName) 
-			?? throw new XamlException($"Class {namePair.Namespace}.{namePair.ClassName} not found");
+		return nsd.Assembly.GetType(namePair.TypeName);
+	}
+
+	TypeDescriptor BuildTypeDescriptor(ClassNamePair namePair)
+	{
+		String typeName = namePair.TypeName;
+		var nodeType = FindType(namePair)
+			?? throw new XamlException($"Class {typeName} not found");
 		Func<Object>? constructor = null;
 		Func<String, Object>? constructorStr = null;
 		Func<IServiceProvider, Object>? constructorService = null;
@@ -234,6 +242,9 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		foreach (var prop in props)
 			propDefs.Add(prop.Name, BuildPropertyDefinition(prop));
 
+		var attachedNames = nodeType.GetCustomAttribute<AttachedPropertiesAttribute>()?.List
+			.Split(',').Select(x => x.Trim()).ToArray() ?? [];
+
 		return new TypeDescriptor(nodeType, typeName, propDefs, BuildNode)
 		{
 			IsCamelCase = namePair.IsCamelCase,
@@ -243,26 +254,28 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 			ContentProperty = contentProperty,
 			AddCollection = addCollection,
 			AddDictionary = addDictionary,
-			AttachedProperties = BuildAttachedProperties(nodeType)
+			AttachedNames = attachedNames,
+			AttachedProperties = BuildAttachedProperties(nodeType, attachedNames)
 		};
 	}
 
 
-	private Dictionary<String, AttachedPropertyDescriptor>? BuildAttachedProperties(Type nodeType)
+	/* Built the same in both modes, because the descriptor cache does not know the mode: built by
+	 * a manager-mode reader first, it used to carry no setters, and an internal-mode reader with
+	 * the same cache dropped every value silently. A name without a static Set{Name} - every
+	 * manager-mode owner - simply gets no setter; TypeDescriptor.SetAttachedPropertyValue raises
+	 * it if the internal mode ever asks.
+	 */
+	private static Dictionary<String, AttachedPropertyDescriptor> BuildAttachedProperties(Type nodeType, String[] names)
 	{
-		if (AttachedPropertyManager != null)
-			return null;
-		var propList = nodeType.GetCustomAttribute<AttachedPropertiesAttribute>()?.List;
-		if (propList == null)
-			return null;
 		var lst = new Dictionary<String, AttachedPropertyDescriptor>();
-		foreach (var prop in propList.Split(','))
+		foreach (var pName in names)
 		{
-			var pName = prop.Trim();
 			var elem = Expression.Parameter(typeof(Object));
 			var val = Expression.Parameter(typeof(Object));
-			var mtd = nodeType.GetMethod($"Set{pName}", BindingFlags.Static | BindingFlags.Public) 
-				?? throw new XamlException($"Invalid attached property {prop} for type {nodeType}");
+			var mtd = nodeType.GetMethod($"Set{pName}", BindingFlags.Static | BindingFlags.Public);
+			if (mtd == null)
+				continue;
 			var args = mtd.GetParameters();
 			var propValueType = args[1].ParameterType;
 			TypeConverter? typeConverter = null;
@@ -308,6 +321,15 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 
 	public TypeDescriptor? GetNodeDescriptor(String typeName)
 	{
+		var className = QualifyClassName(typeName);
+		if (className == null)
+			return null;
+		return typeCache.GetOrAdd(className, BuildTypeDescriptor);
+	}
+
+	// null - the namespace is skipped (IsSkip), not that the class is missing
+	ClassNamePair? QualifyClassName(String typeName)
+	{
 		String nsKey = String.Empty;
 		if (typeName.Contains(':'))
 		{
@@ -326,15 +348,51 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 				// code: PascalCase
 				typeName = typeName.ToPascalCase();
 			}
-			var className = new ClassNamePair(
-				Prefix: nsKey, 
-				Namespace: nsd.Namespace, 
-				ClassName: CheckAlias(typeName), 
+			return new ClassNamePair(
+				Prefix: nsKey,
+				Namespace: nsd.Namespace,
+				ClassName: CheckAlias(typeName),
 				IsCamelCase: nsd.IsCamelCase);
-			return typeCache.GetOrAdd(className, BuildTypeDescriptor);
 		}
 		else
 			throw new XamlException($"Namespace '{nsKey}' not found");
+	}
+
+	// null - no such class; GetNodeDescriptor throws for it instead, with no word of who asked
+	TypeDescriptor? TryGetNodeDescriptor(ClassNamePair className)
+	{
+		if (typeCache.TryGet(className, out TypeDescriptor? td))
+			return td;
+		if (FindType(className) == null)
+			return null;
+		return typeCache.GetOrAdd(className, BuildTypeDescriptor);
+	}
+
+	/* Checked while the reader still stands on the attribute (see LINE-INFO.md), and the same
+	 * check for both modes: the manager mode used to keep any dotted name as a string, so
+	 * Grid.ROw="1" was stored, never read, and the view loaded clean. The names come from the
+	 * owner's [AttachedProperties] - the list the language service reads too.
+	 * Returns false for a name to drop: SkipUnknownProperties covers an unknown name the way it
+	 * covers an unknown property, but not an unknown owner, as it does not cover an unknown element.
+	 */
+	internal Boolean CheckAttachedProperty(String name)
+	{
+		var parts = name.Split('.');
+		if (parts.Length != 2)
+			throw new XamlException($"Invalid attached property name '{name}'");
+		var className = QualifyClassName(parts[0]);
+		if (className == null)
+			return true; // a skipped namespace is not checked
+		var td = TryGetNodeDescriptor(className)
+			?? throw new XamlException($"Attached property '{name}': class {parts[0]} not found");
+		if (td.AttachedNames.Contains(td.MakeName(parts[1])))
+			return true;
+		if (SkipUnknownProperties)
+			return false;
+		var declared = td.AttachedNames.Length > 0
+			? $"Declared: {String.Join(", ", td.AttachedNames)}"
+			: "The type declares no attached properties";
+		throw new XamlException($"Attached property '{name}' not found in type {td.TypeName}. {declared}");
 	}
 
 	String CheckAlias(String name)
@@ -360,7 +418,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		else if (nd.Constructor != null)
 			obj = nd.Constructor();
 		else if (node.IsSimpleContent)
-			return Convert.ChangeType(node.SimpleContent, nd.NodeType); // Simple string ????
+			return PropertyConvertor.ConvertValue(node.SimpleContent!, nd.NodeType, null, $"element '{node.Name}'"); // <sys:Int32>55</sys:Int32>
 		else
 			throw new XamlException("Invalid build node argument");
 

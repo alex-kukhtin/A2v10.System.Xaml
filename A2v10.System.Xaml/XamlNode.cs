@@ -122,7 +122,24 @@ public class XamlNode(String name)
 		else
 			propValue = builder.BuildNode(node);
 		if (propValue != null)
-			Properties.Add(td.MakeName(name), propValue);
+			SetOnce(td.MakeName(name), propValue);
+	}
+
+	/* A property is set once. Properties and Extensions are one namespace of names: an attribute
+	 * extension goes to Extensions, so Content="{Bind X}" with <Button.Content> never met in a
+	 * dictionary - both were applied and the deferred binding silently won. Attributes are read
+	 * before child elements, so the second setter is always the one that throws.
+	 */
+	void CheckOnce(String key)
+	{
+		if (Properties.ContainsKey(key) || Extensions.Exists(x => x.PropertyInfo.Name == key))
+			throw new XamlException($"Property '{key}' is set more than once in '{Name}'");
+	}
+
+	void SetOnce(String key, Object value)
+	{
+		CheckOnce(key);
+		Properties.Add(key, value);
 	}
 
 	public void AddProperty(NodeBuilder builder, String name, String value)
@@ -144,9 +161,12 @@ public class XamlNode(String name)
 	{
 		var prop = builder.QualifyPropertyName(name);
 		if (prop.Special)
-			Properties.Add(prop.Name, new SpecialPropertyDescriptor(value));
+			SetOnce(prop.Name, new SpecialPropertyDescriptor(value));
 		else if (name.Contains('.'))
-			AttachedProperties.Value.Add(new XamlAttachedElem(name, value));
+		{
+			if (builder.CheckAttachedProperty(name))
+				AttachedProperties.Value.Add(new XamlAttachedElem(name, value));
+		}
 		else
 		{
 			var td = builder.GetNodeDescriptor(Name);
@@ -154,17 +174,21 @@ public class XamlNode(String name)
 				return;
 			if (value == null)
 				return;
+			var key = td.MakeName(prop.Name);
 			if (builder.EnableMarkupExtensions)
 			{
 				if (value.StartsWith("{}"))
-					Properties.Add(td.MakeName(prop.Name), value[2..]); // escape {}
+					SetOnce(key, value[2..]); // escape {}
 				else if (!isLiteral && value.StartsWith('{'))
-					Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(td.MakeName(prop.Name)), builder.ParseExtension(value)));
+				{
+					CheckOnce(key);
+					Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(key), builder.ParseExtension(value)));
+				}
 				else
-					Properties.Add(td.MakeName(prop.Name), value);
+					SetOnce(key, value);
 			}
 			else
-				Properties.Add(td.MakeName(prop.Name), value);
+				SetOnce(key, value);
 		}
 	}
 
@@ -185,14 +209,13 @@ public class XamlNode(String name)
 		} 
 		else
 		{
+			// two parts and a known owner - NodeBuilder.CheckAttachedProperty saw to it
 			foreach (var ap in AttachedProperties.Value)
 			{
 				var aps = ap.Name.Split('.');
-				if (aps.Length != 2)
-					continue;
-				var elemDescr = builder.GetNodeDescriptor(aps[0]) 
+				var elemDescr = builder.GetNodeDescriptor(aps[0])
 					?? throw new XamlException($"Element descriptor not found {aps[0]}");
-                elemDescr.SetAttachedPropertyValue(aps[1], target, ap.Value);
+				elemDescr.SetAttachedPropertyValue(elemDescr.MakeName(aps[1]), target, ap.Value);
 			}
 		}
 	}

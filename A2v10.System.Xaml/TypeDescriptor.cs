@@ -23,6 +23,8 @@ public class TypeDescriptor(Type nodeType, String typeName,
     public Action<Object, String, Object>? AddDictionary { get; init; }
 
     public Dictionary<String, AttachedPropertyDescriptor>? AttachedProperties { get; init; }
+    // [AttachedProperties] of the type, in both modes; AttachedProperties holds only those with a static setter
+    internal String[] AttachedNames { get; init; } = [];
 
     public Boolean IsCamelCase { get; init; }
 
@@ -47,7 +49,7 @@ public class TypeDescriptor(Type nodeType, String typeName,
             throw new XamlException($"Property {name} not found in type {TypeName}");
         }
         var propInfo = propDef.PropertyInfo;
-        var val = PropertyConvertor.ConvertValue(value, propInfo.PropertyType, propDef.TypeConverter);
+        var val = PropertyConvertor.ConvertValue(value, propInfo.PropertyType, propDef.TypeConverter, $"property '{name}'");
         if (propDef.AddMethod != null && !propInfo.CanWrite)
         {
             if (val is ICollection collSource)
@@ -77,7 +79,7 @@ public class TypeDescriptor(Type nodeType, String typeName,
         }
         var contProp = contDef.PropertyInfo;
         // TODO: GetTypeDescriptor for contProp.PropertyType. May be collection?
-        var val = PropertyConvertor.ConvertValue(content, contProp.PropertyType, contDef.TypeConverter);
+        var val = PropertyConvertor.ConvertValue(content, contProp.PropertyType, contDef.TypeConverter, $"property '{ContentProperty}'");
         contProp.SetValue(instance, val);
     }
 
@@ -140,22 +142,17 @@ public class TypeDescriptor(Type nodeType, String typeName,
 
     public void SetAttachedPropertyValue(String prop, Object target, Object? value)
     {
-        if (AttachedProperties == null || value == null)
+        if (value == null)
             return;
-        if (AttachedProperties.TryGetValue(prop, out AttachedPropertyDescriptor? descr))
-        {
-            if (descr.PropertyType.IsEnum)
-                value = Enum.Parse(descr.PropertyType, value.ToString()!);
-            else if (descr.TypeConverter != null)
-            {
-                value = descr.TypeConverter.ConvertFromString(value.ToString()!);
-            }
-            else
-                value = Convert.ChangeType(value, descr.PropertyType);
-            if (value == null)
-                return;
-            descr.Lambda(target, value);
-        }
+        // the name passed NodeBuilder.CheckAttachedProperty, so only the setter can be missing:
+        // a manager-mode owner read in the internal mode
+        if (AttachedProperties == null || !AttachedProperties.TryGetValue(prop, out AttachedPropertyDescriptor? descr))
+            throw new XamlException($"Attached property '{NodeType.Name}.{prop}' has no static setter Set{prop} in type {TypeName}");
+        // the same conversion as an ordinary property: an enum ignores case, the culture is invariant
+        value = PropertyConvertor.ConvertValue(value, descr.PropertyType, descr.TypeConverter, $"property '{NodeType.Name}.{prop}'");
+        if (value == null)
+            return;
+        descr.Lambda(target, value);
     }
 
 }

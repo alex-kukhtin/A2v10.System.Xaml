@@ -1,5 +1,6 @@
 ﻿// Copyright © 2021 Oleksandr Kukhtin. All rights reserved.
 
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace A2v10.System.Xaml;
@@ -45,7 +46,7 @@ public static class LambdaHelper
 			var argType = args[1].ParameterType; // value
 			var argKey = Expression.Parameter(typeof(String));
 
-			result.AddDictionary = Expression.Lambda<Action<Object, String, Object>?>(
+			var add = Expression.Lambda<Action<Object, String, Object>>(
 				Expression.Call(
 					Expression.Convert(inst, propType),
 					mtdAdd,
@@ -59,8 +60,22 @@ public static class LambdaHelper
 				argKey,
 				argPrm
 			).Compile();
+			result.AddDictionary = UniqueKey(add, propType);
 		}
 		return result;
+	}
+
+	// two elements with one x:Key: Dictionary.Add threw ArgumentException, naming no dictionary
+	static Action<Object, String, Object> UniqueKey(Action<Object, String, Object> add, Type dictType)
+	{
+		if (!typeof(IDictionary).IsAssignableFrom(dictType))
+			return add;
+		return (dict, key, value) =>
+		{
+			if (((IDictionary)dict).Contains(key))
+				throw new XamlException($"Key '{key}' is used more than once in {dictType.Name}");
+			add(dict, key, value);
+		};
 	}
 }
 

@@ -16,7 +16,7 @@ public class XamlAttachedPropertyManager : IAttachedPropertyManager
 	public T? GetProperty<T>(String propName, Object obj)
 	{
 		if (_map.TryGetValue(new PropertyDef(propName, obj), out Object? value))
-			return (T?) PropertyConvertor.ConvertValue(value, typeof(T), null);
+			return (T?) PropertyConvertor.ConvertValue(value, typeof(T), null, $"property '{propName}'");
 		return default;
 	}
 }
