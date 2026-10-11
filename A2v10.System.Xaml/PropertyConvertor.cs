@@ -1,4 +1,4 @@
-// Copyright © 2021-2026 Oleksandr Kukhtin. All rights reserved.
+﻿// Copyright © 2021-2026 Oleksandr Kukhtin. All rights reserved.
 
 using System.ComponentModel;
 using System.Globalization;
