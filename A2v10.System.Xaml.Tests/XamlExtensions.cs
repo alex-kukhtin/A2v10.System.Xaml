@@ -261,4 +261,121 @@ public class ReadExtensions
 
 		Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
 	}
+
+	static Bind ReadContentBinding(String content)
+	{
+		String xaml = $@"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{content}"">
+		</Button>
+		";
+		var btn = XamlServices.Parse(xaml, null) as Button;
+		Assert.IsNotNull(btn);
+		var bind = btn.GetBinding("Content");
+		Assert.IsNotNull(bind);
+		return bind;
+	}
+
+	static XamlException ReadContentThrows(String content)
+	{
+		String xaml = $@"
+		<Button xmlns=""clr-namespace:A2v10.System.Xaml.Tests.Mock;assembly=A2v10.System.Xaml.Tests""
+			Content=""{content}"">
+		</Button>
+		";
+		return Assert.Throws<XamlException>(() => XamlServices.Parse(xaml, null));
+	}
+
+	[TestMethod]
+	public void TailAfterExtensionThrows()
+	{
+		// was a literal: the value did not end with '}', so it never reached the parser
+		var ex = ReadContentThrows("{Bind Name} - text");
+		Assert.Contains("'{Bind Name} - text'", ex.Message);
+	}
+
+	[TestMethod]
+	public void TwoExtensionsThrow()
+	{
+		// was a binding to Name, the rest dropped silently
+		var ex = ReadContentThrows("{Bind Name} - {Bind Code}");
+		Assert.Contains("'{Bind Name} - {Bind Code}'", ex.Message);
+	}
+
+	[TestMethod]
+	public void UnterminatedExtensionThrows()
+	{
+		// was a literal on a String property
+		var ex = ReadContentThrows("{Bind Name");
+		Assert.StartsWith("Unterminated markup extension in '{Bind Name'", ex.Message);
+	}
+
+	[TestMethod]
+	public void UnterminatedWithSpaceThrows()
+	{
+		var ex = ReadContentThrows("{Bind Name ");
+		Assert.StartsWith("Unterminated markup extension in '{Bind Name '", ex.Message);
+	}
+
+	[TestMethod]
+	public void EmptyPropertyValueThrows()
+	{
+		// was a Bind with no path
+		var ex = ReadContentThrows("{Bind Path=}");
+		Assert.Contains("'Path'", ex.Message);
+		Assert.Contains("'{Bind Path=}'", ex.Message);
+	}
+
+	[TestMethod]
+	public void EmptyPropertyValueBeforeCommaThrows()
+	{
+		var ex = ReadContentThrows("{Bind Path=, Format='n2'}");
+		Assert.Contains("'Path'", ex.Message);
+	}
+
+	[TestMethod]
+	public void SpacesAfterExtensionAllowed()
+	{
+		var bind = ReadContentBinding("{Bind Name}  ");
+		Assert.AreEqual("Name", bind.Path);
+	}
+
+	[TestMethod]
+	public void QuotedEmptyValueAllowed()
+	{
+		var bind = ReadContentBinding("{Bind Name, Format=''}");
+		Assert.AreEqual("", bind.Format);
+	}
+
+	[TestMethod]
+	public void QuotedValueWithBraceIsLiteral()
+	{
+		var bind = ReadContentBinding("{Bind Sum, Format='{0} шт'}");
+		Assert.AreEqual("Sum", bind.Path);
+		Assert.AreEqual("{0} шт", bind.Format);
+	}
+
+	[TestMethod]
+	public void QuotedValueInBracesIsLiteral()
+	{
+		// was parsed as an extension: Namespace '0' not found
+		var bind = ReadContentBinding("{Bind Sum, Format='{0:n2}'}");
+		Assert.AreEqual("{0:n2}", bind.Format);
+	}
+
+	[TestMethod]
+	public void QuotedValueEscapeStripped()
+	{
+		var bind = ReadContentBinding("{Bind Sum, Format='{}{0:n2}'}");
+		Assert.AreEqual("{0:n2}", bind.Format);
+	}
+
+	[TestMethod]
+	public void NestedExtensionStillParsed()
+	{
+		var bind = ReadContentBinding("{Bind Sum, Argument={Bind Code}}");
+		var arg = bind.GetBinding("Argument");
+		Assert.IsNotNull(arg);
+		Assert.AreEqual("Code", arg.Path);
+	}
 }

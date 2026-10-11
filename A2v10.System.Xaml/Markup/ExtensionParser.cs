@@ -18,7 +18,8 @@ public class ExtensionParser
         RightCurly,
         Equal,
         Ider,
-        String
+        String,
+        Extension
     }
 
     enum State
@@ -65,13 +66,22 @@ public class ExtensionParser
             throw new XamlException($"Invalid Xaml extension '{_text}'");
         NextChar();
         Read();
+        // the reader sends every value that starts with '{', so the end of the extension is not
+        // the end of the text: {Bind Name} - {Bind Code} used to bind to Name and drop the rest
+        SkipWhitespace();
+        if (_ch != NULL_CHAR)
+            throw new XamlException($"""Unexpected '{_text.Substring(_pos)}' after the markup extension in '{_text}'. An attribute value holds one markup extension.""");
         return _node ?? throw new XamlException("Invalid node");
     }
 
     void Read()
     {
-        while (_ch != NULL_CHAR)
+        while (true)
         {
+            SkipWhitespace();
+            // the text ended before the closing brace: {Bind Name gave a Bind, silently
+            if (_ch == NULL_CHAR)
+                throw new XamlException($"Unterminated markup extension in '{_text}'");
             NextToken();
             DoStep();
             if (_tokenType == TokenType.RightCurly)
@@ -120,12 +130,13 @@ public class ExtensionParser
                     throw Unquoted();
                 break;
             case State.Value:
-                if (_tokenType == TokenType.String || _tokenType == TokenType.Ider)
-                {
-                    if (_node == null || _propertyName == null)
-                        throw new XamlException("Invalid parser state");
-                    _node.AddProperty(_builder, _propertyName, TokenValue);
-                }
+                if (_node == null || _propertyName == null)
+                    throw new XamlException("Invalid parser state");
+                // a ',' or '}' right after '=': {Bind Path=} gave a Bind with no path
+                if (_tokenType != TokenType.String && _tokenType != TokenType.Ider && _tokenType != TokenType.Extension)
+                    throw new XamlException($"""Missing value for '{_propertyName}' in '{_text}'""");
+                // the token says what the value is; its text is not asked again - see XamlNode.AddProperty
+                _node.AddProperty(_builder, _propertyName, TokenValue, isLiteral: _tokenType != TokenType.Extension);
                 _state = State.Continue;
                 break;
             case State.Continue:
@@ -155,10 +166,15 @@ public class ExtensionParser
         return new XamlException($"""Unexpected '{TokenValue}' in '{_text}'. Quote a value with spaces: 'text' or `template`.""");
     }
 
-    void NextToken()
+    void SkipWhitespace()
     {
         while (Char.IsWhiteSpace(_ch) && _ch != NULL_CHAR)
             NextChar();
+    }
+
+    void NextToken()
+    {
+        SkipWhitespace();
         Int32 tokPos = _pos;
         Int32 cbc;
         switch (_ch)
@@ -176,7 +192,7 @@ public class ExtensionParser
                 NextChar();
                 break;
             case '{':
-                _tokenType = TokenType.String;
+                _tokenType = TokenType.Extension;
                 cbc = 0;
                 while (cbc >= 0)
                 {

@@ -127,6 +127,21 @@ public class XamlNode(String name)
 
 	public void AddProperty(NodeBuilder builder, String name, String value)
 	{
+		AddProperty(builder, name, value, isLiteral: false);
+	}
+
+	/* Which value is a markup extension, and who decides.
+	 *   An attribute value: anything that starts with '{'. The parser owns the rest of it - a tail
+	 *   after the closing brace or a missing brace is its error, not a literal; a test on the last
+	 *   character here let "{Bind Name} - {Bind Code}" and "{Bind Name" pass silently.
+	 *   A value inside an extension: the parser already knows from the token, so isLiteral. A
+	 *   quoted value ('{0} шт', '{0:n2}') is a literal whatever it starts with; only a braced
+	 *   token is a nested extension.
+	 * A leading '{}' is stripped on both roads: it means "a literal follows" everywhere, and
+	 * '{}{0:n2}' was how a quoted format was written before the quotes alone were enough.
+	 */
+	internal void AddProperty(NodeBuilder builder, String name, String value, Boolean isLiteral)
+	{
 		var prop = builder.QualifyPropertyName(name);
 		if (prop.Special)
 			Properties.Add(prop.Name, new SpecialPropertyDescriptor(value));
@@ -143,7 +158,7 @@ public class XamlNode(String name)
 			{
 				if (value.StartsWith("{}"))
 					Properties.Add(td.MakeName(prop.Name), value[2..]); // escape {}
-				else if (value.StartsWith('{') && value.EndsWith('}'))
+				else if (!isLiteral && value.StartsWith('{'))
 					Extensions.Add(new XamlExtensionElem(td.GetPropertyInfo(td.MakeName(prop.Name)), builder.ParseExtension(value)));
 				else
 					Properties.Add(td.MakeName(prop.Name), value);
