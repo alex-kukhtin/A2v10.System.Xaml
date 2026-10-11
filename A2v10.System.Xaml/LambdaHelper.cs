@@ -46,14 +46,18 @@ public static class LambdaHelper
 		else if (args.Length == 2)
 		{
 			// .Add(key, value);
+			var keyType = args[0].ParameterType;
 			var argType = args[1].ParameterType; // value
-			var argKey = Expression.Parameter(typeof(String));
+			var argKey = Expression.Parameter(typeof(Object));
 
-			var add = Expression.Lambda<Action<Object, String, Object>>(
+			var add = Expression.Lambda<Action<Object, Object, Object>>(
 				Expression.Call(
 					Expression.Convert(inst, propType),
 					mtdAdd,
-					argKey,
+					Expression.Convert(
+						argKey,
+						keyType
+					),
 					Expression.Convert(
 						argPrm,
 						argType
@@ -63,20 +67,26 @@ public static class LambdaHelper
 				argKey,
 				argPrm
 			).Compile();
-			result.AddDictionary = UniqueKey(add, propType);
+			result.AddDictionary = KeyFromText(add, propType, keyType);
 		}
 		return result;
 	}
 
-	// two elements with one x:Key: Dictionary.Add threw ArgumentException, naming no dictionary
-	static Action<Object, String, Object> UniqueKey(Action<Object, String, Object> add, Type dictType)
+	/* x:Key is always text, and the key of the dictionary may be anything: the text is converted
+	 * as a property value is (PropertyConvertor), so a bad key is XamlException naming the
+	 * dictionary. The call used to be built with a String key whatever Add took, and a
+	 * Dictionary<UInt32, Row> failed the descriptor of its owner - used in the markup or not.
+	 * The repeat is checked on the converted key: "1" and "01" are one key of UInt32. It names the
+	 * text as written, which is what the author searches for.
+	 */
+	static Action<Object, String, Object> KeyFromText(Action<Object, Object, Object> add, Type dictType, Type keyType)
 	{
-		if (!typeof(IDictionary).IsAssignableFrom(dictType))
-			return add;
-		return (dict, key, value) =>
+		var isDictionary = typeof(IDictionary).IsAssignableFrom(dictType);
+		return (dict, keyText, value) =>
 		{
-			if (((IDictionary)dict).Contains(key))
-				throw new XamlException($"Key '{key}' is used more than once in {dictType.Name}");
+			var key = PropertyConvertor.ConvertValue(keyText, keyType, null, $"x:Key of {dictType.Name}")!;
+			if (isDictionary && ((IDictionary)dict).Contains(key))
+				throw new XamlException($"Key '{keyText}' is used more than once in {dictType.Name}");
 			add(dict, key, value);
 		};
 	}

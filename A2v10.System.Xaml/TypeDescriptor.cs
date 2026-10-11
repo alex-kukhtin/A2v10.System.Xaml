@@ -6,12 +6,11 @@ using System.Reflection;
 namespace A2v10.System.Xaml;
 
 public class TypeDescriptor(Type nodeType, String typeName,
-    Dictionary<String, PropertyDescriptor> props, Func<XamlNode, Object?> buildNode)
+    Dictionary<String, PropertyDescriptor> props)
 {
     public String TypeName { get; } = typeName;
     public Type NodeType { get; } = nodeType;
     public Dictionary<String, PropertyDescriptor> Properties { get; } = props;
-    public Func<XamlNode, Object?> BuildNode { get; } = buildNode;
 
     public Func<Object>? Constructor { get; init; }
     public Func<String, Object>? ConstructorString { get; init; }

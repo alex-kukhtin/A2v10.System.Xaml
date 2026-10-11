@@ -245,7 +245,7 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		var attachedNames = nodeType.GetCustomAttribute<AttachedPropertiesAttribute>()?.List
 			.Split(',').Select(x => x.Trim()).ToArray() ?? [];
 
-		return new TypeDescriptor(nodeType, typeName, propDefs, BuildNode)
+		return new TypeDescriptor(nodeType, typeName, propDefs)
 		{
 			IsCamelCase = namePair.IsCamelCase,
 			Constructor = constructor,

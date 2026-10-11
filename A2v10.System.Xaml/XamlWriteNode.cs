@@ -180,7 +180,9 @@ public class XamlWriteNode(String name)
             {
                 if (item is String)
                     list.Add(item);
-                else if (isDict && item is KeyValuePair<String, Object> keyValuePair)
+                // any KeyValuePair<,>: Dictionary<String, UIElementBase> is not KeyValuePair<String, Object>,
+                // and its items were written as elements named KeyValuePair`2
+                else if (isDict && GenericKeyValuePair(item) is { } keyValuePair)
                 {
                     var obj = XamlWriteNode.Create(keyValuePair.Value, parent);
                     obj.Properties.Add(new XamlWriteProp("x:Key", keyValuePair.Key, false));
@@ -221,7 +223,10 @@ public class XamlWriteNode(String name)
         {
             var keyProp = tp.GetProperty("Key")!;
             var valProp = tp.GetProperty("Value")!;
-            return new KeyValuePair<String, Object>(keyProp.GetValue(item)!.ToString()!, valProp.GetValue(item)!);
+            // the reader converts x:Key back in the invariant culture: ToString() wrote a Double 1.5 as "1,5"
+            var key = keyProp.GetValue(item)!;
+            var keyText = key is IConvertible scalar ? ScalarText(scalar) : key.ToString()!;
+            return new KeyValuePair<String, Object>(keyText, valProp.GetValue(item)!);
         }
         return null;
     }
