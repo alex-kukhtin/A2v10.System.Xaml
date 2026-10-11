@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace A2v10.System.Xaml;
 public record CollectionLambdas
@@ -16,7 +17,9 @@ public static class LambdaHelper
 	{
 		var result = new CollectionLambdas();
 
-		var mtdAdd = propType.GetMethod("Add");
+		// an instance Add only: the static Decimal.Add(Decimal, Decimal) passed for a dictionary Add,
+		// and the descriptor of any type with a Decimal property failed to build
+		var mtdAdd = propType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
 		if (mtdAdd == null)
 			return result;
 		var inst = Expression.Parameter(typeof(Object));

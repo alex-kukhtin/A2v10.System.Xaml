@@ -8,4 +8,9 @@ public class Element
 	public Int32 Int32Value { get; set; }
 	public Double DoubleValue { get; set; }
 	public Int32? Int32Nullable { get; set; }
+	public Double? DoubleNullable { get; set; }
+	public Decimal DecimalValue { get; set; }
+	public Int64 Int64Value { get; set; }
+	public DateTime DateValue { get; set; }
+	public Char CharValue { get; set; }
 }

@@ -9,6 +9,7 @@ namespace A2v10.System.Xaml;
 public class XamlWriter
 {
     private Boolean _hasDictionary;
+    private String? _rootNamespace;
 
     private const String X_NS = "http://schemas.microsoft.com/winfx/2006/xaml";
     public String GetXaml(Object obj)
@@ -23,6 +24,7 @@ public class XamlWriter
         XamlWriteNode writeNode = XamlWriteNode.Create(obj, null);
 
         _hasDictionary = writeNode.AllElements().Any(x => x.IsDictionary);
+        _rootNamespace = writeNode.Namespace;
 
         using var sw = new StringWriter();
         using (var writer = XmlWriter.Create(sw, settings))
@@ -65,6 +67,7 @@ public class XamlWriter
                 writer.WriteStartElement($"{node.Name}.{prop.Name}");
             if (prop.Value is XamlWriteNode propNode)
             {
+                CheckNamespace(node, prop, propNode);
                 WriteNode(writer, propNode, false);
             }
             else if (prop.Value is List<Object> listValues)
@@ -74,12 +77,26 @@ public class XamlWriter
                     if (item is String strValue)
                         writer.WriteString(strValue);
                     else if (item is XamlWriteNode writeNode)
+                    {
+                        CheckNamespace(node, prop, writeNode);
                         WriteNode(writer, writeNode, false);
+                    }
                 }
             }
             if (!prop.IsContent)
                 writer.WriteEndElement();
         }
         writer.WriteEndElement();
+    }
+
+    /* An element from another CLR namespace makes XmlWriter redefine the default xmlns on it, and
+     * the reader does not accept a redefinition (NodeBuilder.AddNamespace keeps the first): the
+     * class is looked up in the root namespace and is not found - or a namesake is. A wrapper node
+     * has no namespace of its own and inherits the document's.
+     */
+    void CheckNamespace(XamlWriteNode owner, XamlWriteProp prop, XamlWriteNode child)
+    {
+        if (child.Namespace != null && child.Namespace != _rootNamespace)
+            throw new XamlException($"Cannot write {child.Name} in property '{owner.Name}.{prop.Name}': namespace '{child.Namespace}' is not the document namespace '{_rootNamespace}'");
     }
 }

@@ -81,7 +81,9 @@ public static class PropertyConvertor
 			TypeCode.Single => Single.TryParse(text, floating, inv, out var v) ? v : null,
 			TypeCode.Double => Double.TryParse(text, floating, inv, out var v) ? v : null,
 			TypeCode.Decimal => Decimal.TryParse(text, NumberStyles.Number, inv, out var v) ? v : null,
-			TypeCode.DateTime => DateTime.TryParse(text, inv, DateTimeStyles.None, out var v) ? v : null,
+			// RoundtripKind, unlike Convert.ChangeType: a date with 'Z' stays UTC instead of moving to
+			// local time, so what XamlWriter wrote ("o") comes back as it was; one with no zone reads as before
+			TypeCode.DateTime => DateTime.TryParse(text, inv, DateTimeStyles.RoundtripKind, out var v) ? v : null,
 			_ => null
 		};
 	}

@@ -2,6 +2,7 @@
 
 using System.Reflection;
 using System.Collections;
+using System.Globalization;
 using System.Linq;
 
 namespace A2v10.System.Xaml;
@@ -92,30 +93,64 @@ public class XamlWriteNode(String name)
             return;
         }
 
-        (Boolean has, Object? val) = value switch
+        if (value is String str)
         {
-            String isStr => (true, !String.IsNullOrWhiteSpace(isStr) ? isStr : null),
-            Boolean bVal => (true, (isNullable || bVal) ? bVal.ToString() : null),
-            Int32 intVal => (true, (isNullable || intVal != 0) ? intVal.ToString() : null),
-            UInt32 uintVal => (true, (isNullable || uintVal != 0) ? uintVal.ToString() : null),
-            _ => (false, null)
-        };
-        if (has)
-        {
-            if (val != null)
-                Properties.Add(new XamlWriteProp(prop.Name, val, isContentProp));
+            if (!String.IsNullOrWhiteSpace(str))
+                Properties.Add(new XamlWriteProp(prop.Name, Literal(str, isContentProp), isContentProp));
             return;
         }
 
+        var valueType = value.GetType();
+        // a non-nullable property has no "not set" but its default: 0, false, DateTime.MinValue are not written
+        Boolean isDefault = valueType.IsValueType && !isNullable && value.Equals(Activator.CreateInstance(valueType));
+
+        if (value is IConvertible scalar && Type.GetTypeCode(valueType) is not (TypeCode.Object or TypeCode.DBNull))
+        {
+            if (!isDefault)
+                Properties.Add(new XamlWriteProp(prop.Name, Literal(ScalarText(scalar), isContentProp), isContentProp));
+            return;
+        }
 
         if (value is IXamlConverter xamlConverter)
-            Properties.Add(new XamlWriteProp(prop.Name, xamlConverter.ToXamlString(), isContentProp));
+            Properties.Add(new XamlWriteProp(prop.Name, Literal(xamlConverter.ToXamlString(), isContentProp), isContentProp));
         else
         {
             if (AddCollectionProp(prop, value, parent))
                 return;
+            // a struct written as an element is never read back: the reader finds no parameterless
+            // constructor on it (and a Guid or a TimeSpan would be written empty besides)
+            if (valueType.IsValueType)
+            {
+                if (isDefault)
+                    return;
+                throw new XamlException($"Cannot write property '{Name}.{prop.Name}': {valueType.Name} has no text form (no IXamlConverter)");
+            }
             Properties.Add(new XamlWriteProp(prop.Name, XamlWriteNode.Create(value, parent), isContentProp));
         }
+    }
+
+    /* The text the reader parses back to the same value (PropertyConvertor.ParseText): the invariant
+     * culture, and for a DateTime the round-trip format - the default one drops the fraction of a
+     * second and the Kind. A Double prints its shortest exact form.
+     */
+    static String ScalarText(IConvertible scalar)
+    {
+        if (scalar is DateTime dt)
+            return dt.ToString("o", CultureInfo.InvariantCulture);
+        return scalar.ToString(CultureInfo.InvariantCulture);
+    }
+
+    /* The reader takes an attribute that starts with '{' for a markup extension and strips a
+     * leading '{}' (XamlNode.AddProperty), so a literal attribute that starts with '{' is written
+     * behind '{}': "{x: 1}" came back as an extension, "{}abc" as "abc". Only a literal attribute -
+     * markup from IBindWriter is markup, and the reader parses neither element text (isContent),
+     * nor an attached value, nor x:Key: '{}' written there would stay in the value.
+     */
+    static String? Literal(String? text, Boolean isContent)
+    {
+        if (!isContent && text != null && text.StartsWith('{'))
+            return "{}" + text;
+        return text;
     }
 
     Boolean ParseBinding(PropertyInfo prop, Object? value)
