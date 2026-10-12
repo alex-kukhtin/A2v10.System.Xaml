@@ -48,7 +48,7 @@ public class XamlWriter
             writer.WriteAttributeString("xmlns", "x", null, X_NS);
 
         // first path - string attributes 
-        foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is String && !p.IsContent))
+        foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is String && !p.IsContent && !p.IsCData))
         {
             if (prop.Name.StartsWith("x:"))
                 writer.WriteAttributeString(prop.Name[2..], X_NS, prop.Value!.ToString());
@@ -58,14 +58,19 @@ public class XamlWriter
         // second path - string content
         foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is String && p.IsContent))
         {
-            writer.WriteString(prop.Value!.ToString());
+            if (prop.IsCData)
+                writer.WriteCData(prop.Value!.ToString());
+            else
+                writer.WriteString(prop.Value!.ToString());
         }
-        // third path - node content
-        foreach (var prop in node.Properties.Where(p => !p.IsEmpty && p.Value is not String))
+        // third path - node content and CDATA property elements
+        foreach (var prop in node.Properties.Where(p => !p.IsEmpty && (p.Value is not String || p.IsCData && !p.IsContent)))
         {
             if (!prop.IsContent)
                 writer.WriteStartElement($"{node.Name}.{prop.Name}");
-            if (prop.Value is XamlWriteNode propNode)
+            if (prop.Value is String cdata)
+                writer.WriteCData(cdata);
+            else if (prop.Value is XamlWriteNode propNode)
             {
                 CheckNamespace(node, prop, propNode);
                 WriteNode(writer, propNode, false);

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace A2v10.System.Xaml;
 
-public record XamlWriteProp(String Name, Object? Value, Boolean IsContent)
+public record XamlWriteProp(String Name, Object? Value, Boolean IsContent, Boolean IsCData = false)
 {
     public Boolean IsEmpty => Value == null;
 }
@@ -62,6 +62,11 @@ public class XamlWriteNode(String name)
     }
     public void ParseOneProperty(PropertyInfo prop, Object? value, Object parent)
     {
+        // a declaration error: thrown whatever the value, null included
+        Boolean isCData = prop.GetCustomAttribute<WriteAsCDataAttribute>() != null;
+        if (isCData && prop.PropertyType != typeof(String))
+            throw new XamlException($"Cannot write property '{Name}.{prop.Name}': [WriteAsCData] requires a String property, not {prop.PropertyType.Name}");
+
         if (ParseBinding(prop, parent))
             return;
 
@@ -95,8 +100,16 @@ public class XamlWriteNode(String name)
 
         if (value is String str)
         {
-            if (!String.IsNullOrWhiteSpace(str))
+            if (String.IsNullOrWhiteSpace(str))
+                return;
+            if (!isCData)
                 Properties.Add(new XamlWriteProp(prop.Name, Literal(str, isContentProp), isContentProp));
+            // XmlWriter splits ']]>' into two CDATA sections, and the reader cannot read two
+            // text nodes in a row. Element text is not parsed by the reader, so no Literal()
+            else if (str.Contains("]]>"))
+                throw new XamlException($"Cannot write property '{Name}.{prop.Name}' as CDATA: the value contains ']]>'. Insert a space: ']] >'");
+            else
+                Properties.Add(new XamlWriteProp(prop.Name, str, isContentProp, IsCData: true));
             return;
         }
 
