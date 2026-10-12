@@ -4,6 +4,6 @@
 namespace A2v10.System.Xaml;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class WrapContentAttribute() : Attribute
+public sealed class WrapContentAttribute() : Attribute
 {
 }

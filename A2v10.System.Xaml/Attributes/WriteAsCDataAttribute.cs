@@ -8,6 +8,6 @@ namespace A2v10.System.Xaml;
  * the reader normalizes CRLF to LF. A value with ']]>' is an error: CDATA cannot hold it.
  */
 [AttributeUsage(AttributeTargets.Property)]
-public class WriteAsCDataAttribute() : Attribute
+public sealed class WriteAsCDataAttribute() : Attribute
 {
 }

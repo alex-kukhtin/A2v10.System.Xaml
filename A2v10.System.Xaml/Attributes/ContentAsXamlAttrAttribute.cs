@@ -4,6 +4,6 @@
 namespace A2v10.System.Xaml;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class ContentAsXamlAttrAttribute() : Attribute
+public sealed class ContentAsXamlAttrAttribute() : Attribute
 {
 }
