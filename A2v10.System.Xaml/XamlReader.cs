@@ -8,6 +8,7 @@ public class XamlReader
 {
     private readonly XamlNode _root = new("Root");
     private readonly XmlReader _rdr;
+    private readonly IXmlLineInfo? _lineInfo;
     private readonly XamlServicesOptions? _options;
     private readonly XamlServiceProvider _xamlServiceProvider;
     private readonly TypeDescriptorCache _typeCache;
@@ -17,6 +18,7 @@ public class XamlReader
     public XamlReader(XmlReader rdr, Uri? baseUri, TypeDescriptorCache typeCache, XamlServicesOptions? options)
     {
         _rdr = rdr;
+        _lineInfo = rdr as IXmlLineInfo;
         _typeCache = typeCache;
         _options = options;
 
@@ -64,7 +66,8 @@ public class XamlReader
         {
             case XmlNodeType.Element:
                 {
-                    var node = new XamlNode(_rdr.Name);
+                    var (line, pos) = Position();
+                    var node = new XamlNode(_rdr.Name) { LineNumber = line, LinePosition = pos };
                     StartNode(node);
                     if (_rdr.IsEmptyElement)
                         EndNode(builder);
@@ -115,7 +118,16 @@ public class XamlReader
     void AddContent()
     {
         var node = _elemStack.Peek();
-        node.SetContent(_rdr.Value); // preserve whitespace
+        var (line, pos) = Position();
+        node.SetContent(_rdr.Value, line, pos); // preserve whitespace
+    }
+
+    // (0, 0) - the reader reports no position, a valid state
+    (Int32 Line, Int32 Pos) Position()
+    {
+        if (_lineInfo == null || !_lineInfo.HasLineInfo())
+            return (0, 0);
+        return (_lineInfo.LineNumber, _lineInfo.LinePosition);
     }
 
     void EndNode(NodeBuilder builder)

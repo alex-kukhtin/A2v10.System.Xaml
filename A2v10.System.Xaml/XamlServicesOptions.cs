@@ -11,6 +11,8 @@ public class XamlServicesOptions(NamespaceDef[] namespaces)
 	public Boolean SkipUnknownProperties { get; init; }
     public Boolean UseInternalAttached { get; init; }
     public Action<XamlReader>? OnCreateReader { get; init; }
+    // appended to the "takes one object" error; the host knows its own containers, the reader does not
+    public String? SingleContentHint { get; init; }
 
     // A2v10.Workflow.Bpmn.Diagram, A2v10.Workflow
     private static readonly NamespaceDef[] BPMNNamespaces = [

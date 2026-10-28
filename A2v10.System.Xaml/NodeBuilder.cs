@@ -440,6 +440,19 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		}
 		if (node.HasChildren)
 		{
+			/* A content property that holds one object takes one child. Every child used to go to
+			 * AddChildren, which kept the last in an Object property and dropped all but the first
+			 * in a typed one: <DataGridColumn> with two <TagLabel If=..> rendered one and said
+			 * nothing. Text is counted - it reaches AddChildren as a String, and the text of
+			 * "Click <Bold>here</Bold>" was lost the same way.
+			 * "One object" is read off the descriptor (IsSingleContent), not re-derived from the
+			 * property type: it is the same AddCollection/AddDictionary that AddChildren adds through,
+			 * so the check and the add cannot disagree about what is a collection.
+			 * Always on, no flag, SkipUnknownProperties or not: markup that loaded with a lost child
+			 * now fails, on the server too. A flag would keep the silent loss wherever it is off.
+			 */
+			var single = nd.IsSingleContent;
+			var count = 0;
 			foreach (var ch in node.Children.Value)
 			{
 				Object? chObj;
@@ -447,8 +460,11 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 					chObj = chXaml.Text;
 				else
 					chObj = BuildNode(ch);
-				if (chObj != null)
-					nd.AddChildren(obj, chObj, ch);
+				if (chObj == null)
+					continue;
+				if (single && ++count > 1)
+					throw SecondContentChild(node, nd, ch);
+				nd.AddChildren(obj, chObj, ch);
 			}
 		}
 
@@ -460,6 +476,14 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 			init.EndInit();
 		}
 		return obj;
+	}
+
+	XamlException SecondContentChild(XamlNode node, TypeDescriptor nd, XamlNode child)
+	{
+		var at = child.LineNumber > 0 ? $" at line {child.LineNumber}, position {child.LinePosition}" : String.Empty;
+		var msg = $"Element '{node.Name}': content property '{nd.ContentProperty}' takes one object; a second child{at}.";
+		var hint = options?.SingleContentHint;
+		return new XamlException(String.IsNullOrEmpty(hint) ? msg : $"{msg} {hint}");
 	}
 
 	public void ExecuteDeferred()

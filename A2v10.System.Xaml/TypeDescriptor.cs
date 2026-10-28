@@ -21,6 +21,9 @@ public class TypeDescriptor(Type nodeType, String typeName,
     public Action<Object, Object>? AddCollection { get; init; }
     public Action<Object, String, Object>? AddDictionary { get; init; }
 
+    // the content property holds one object: its type has no instance Add (BuildTypeDescriptor)
+    public Boolean IsSingleContent => ContentProperty != null && AddCollection == null && AddDictionary == null;
+
     public Dictionary<String, AttachedPropertyDescriptor>? AttachedProperties { get; init; }
     // [AttachedProperties] of the type, in both modes; AttachedProperties holds only those with a static setter
     internal String[] AttachedNames { get; init; } = [];

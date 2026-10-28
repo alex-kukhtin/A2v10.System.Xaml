@@ -11,6 +11,9 @@ public class XamlNode(String name)
 {
 	public String Name { get; } = name;
 	public String? ConstructorArgument => _ctorArgument;
+	// where the markup put the node; 0 - the reader reports no position
+	public Int32 LineNumber { get; init; }
+	public Int32 LinePosition { get; init; }
 
 	private String? _ctorArgument;
 
@@ -44,9 +47,9 @@ public class XamlNode(String name)
 		}
 	}
 
-	public void SetContent(String text)
+	public void SetContent(String text, Int32 lineNumber = 0, Int32 linePosition = 0)
 	{
-		Children.Value.Add(new XamlTextContent() { Text = text });
+		Children.Value.Add(new XamlTextContent() { Text = text, LineNumber = lineNumber, LinePosition = linePosition });
 	}
 
 	public void AddChildren(XamlNode node, NodeBuilder builder)
