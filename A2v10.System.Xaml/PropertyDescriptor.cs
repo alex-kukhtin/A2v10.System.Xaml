@@ -23,31 +23,47 @@ public record PropertyDescriptor
 	public Boolean IsArray => AddMethod != null && Constructor != null;
 	public Boolean IsDictionary => AddDictionaryMethod != null && Constructor != null;
 
-	void AddToDictionary(NodeBuilder builder, Object dict, IEnumerable<XamlNode> children)
+	/* Two forms of the items, never mixed:
+	 *   implicit  <Page.Resources><Button x:Key=../>..</Page.Resources>
+	 *   wrapper   <Page.Resources><ResourceDictionary>..</ResourceDictionary></Page.Resources> - XamlWriter emits it
+	 * The wrapper is the dictionary object itself, so it is the only child. It used to end the
+	 * loop with a return: items before it were added, items after it were lost.
+	 */
+	void AddToDictionary(NodeBuilder builder, Object dict, XamlNode node)
 	{
 		if (AddDictionaryMethod == null)
 			throw new InvalidProgramException("AddToDictionary failed");
+		var children = node.Children.Value;
+		var dictName = dict.GetType().Name;
+		if (children.Exists(ch => ch.Name == dictName))
+		{
+			if (children.Count > 1)
+				throw new XamlException($"Property element '{node.Name}': <{dictName}> must be its only child; a second child{NodeBuilder.At(children[1])}.");
+			if (children[0].HasChildren)
+				AddToDictionary(builder, dict, children[0]);
+			return;
+		}
 		foreach (var nd in children)
 		{
-			if (nd.Name == dict.GetType().Name)
-			{
-				if (nd.HasChildren)
-					AddToDictionary(builder, dict, nd.Children.Value);
-				return;
-			}
-			else
-			{
-                if (!nd.Properties.TryGetValue("Key", out var key) || key is not SpecialPropertyDescriptor spec)
-                    throw new XamlException($"Property 'Key' not found in node '{nd.Name}'");
-                var dVal = builder.BuildNode(nd);
-				if (dVal != null)
-					AddDictionaryMethod(dict, spec.Name, dVal);
-			}
+			if (nd is XamlTextContent)
+				throw new XamlException($"Property element '{node.Name}' holds keyed elements; text{NodeBuilder.At(nd)}.");
+			if (!nd.Properties.TryGetValue("Key", out var key) || key is not SpecialPropertyDescriptor spec)
+				throw new XamlException($"Property 'Key' not found in node '{nd.Name}'");
+			var dVal = builder.BuildNode(nd);
+			if (dVal != null)
+				AddDictionaryMethod(dict, spec.Name, dVal);
 		}
 	}
 
+	/* Text alone is the value an attribute would give: <Text.Inlines>abc</Text.Inlines> is
+	 * Inlines="abc", converted by SetPropertyValue. The collection and dictionary branches used to
+	 * return null here, and the text was lost.
+	 * Children otherwise, text among them: a text child is a String, as in a content property.
+	 */
 	public Object? BuildElement(NodeBuilder builder, XamlNode node)
 	{
+		if (node.IsSimpleContent)
+			return node.SimpleContent;
 		if (IsPlain)
 		{
 			if (PropertyInfo.CanWrite)
@@ -63,7 +79,7 @@ public record PropertyDescriptor
 				throw new InvalidProgramException("BuildElement failed. Constructor not defined");
 			var dict = Constructor();
 
-			AddToDictionary(builder, dict, node.Children.Value);
+			AddToDictionary(builder, dict, node);
 
 			return dict;
 		}
@@ -75,7 +91,11 @@ public record PropertyDescriptor
 				throw new InvalidProgramException("BuildElement failed. Constructor or AddMethod not defined");
 			var arr = Constructor();
 			foreach (var nd in node.Children.Value)
-				AddMethod(arr, builder.BuildNode(nd) ?? throw new XamlException("Build node failed"));
+			{
+				var item = builder.BuildChild(nd);
+				if (item != null)
+					AddMethod(arr, item);
+			}
 			return arr;
 		}
 		throw new NotImplementedException($"Property: {PropertyInfo.Name}");

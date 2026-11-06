@@ -455,15 +455,11 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 			var count = 0;
 			foreach (var ch in node.Children.Value)
 			{
-				Object? chObj;
-				if (ch is XamlTextContent chXaml)
-					chObj = chXaml.Text;
-				else
-					chObj = BuildNode(ch);
+				var chObj = BuildChild(ch);
 				if (chObj == null)
 					continue;
 				if (single && ++count > 1)
-					throw SecondContentChild(node, nd, ch);
+					throw SecondChild($"Element '{node.Name}': content property '{nd.ContentProperty}'", ch);
 				nd.AddChildren(obj, chObj, ch);
 			}
 		}
@@ -478,12 +474,26 @@ public partial class NodeBuilder(XamlServiceProvider serviceProvider, TypeDescri
 		return obj;
 	}
 
-	XamlException SecondContentChild(XamlNode node, TypeDescriptor nd, XamlNode child)
+	// a child is text or an element; text is counted as a child - it is a value like any other
+	// null - nothing to add (a skipped namespace)
+	internal Object? BuildChild(XamlNode child)
 	{
-		var at = child.LineNumber > 0 ? $" at line {child.LineNumber}, position {child.LinePosition}" : String.Empty;
-		var msg = $"Element '{node.Name}': content property '{nd.ContentProperty}' takes one object; a second child{at}.";
+		return child is XamlTextContent text ? text.Text : BuildNode(child);
+	}
+
+	// one error for every place that takes one object: a content property and a property element
+	// receiver - who takes it, as the message names it: "Element 'Alert': content property 'Content'"
+	internal XamlException SecondChild(String receiver, XamlNode child)
+	{
+		var msg = $"{receiver} takes one object; a second child{At(child)}.";
 		var hint = options?.SingleContentHint;
 		return new XamlException(String.IsNullOrEmpty(hint) ? msg : $"{msg} {hint}");
+	}
+
+	// "" - the reader reports no position, a valid state
+	internal static String At(XamlNode node)
+	{
+		return node.LineNumber > 0 ? $" at line {node.LineNumber}, position {node.LinePosition}" : String.Empty;
 	}
 
 	public void ExecuteDeferred()

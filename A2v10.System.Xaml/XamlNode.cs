@@ -69,16 +69,29 @@ public class XamlNode(String name)
 		}
 	}
 
+	/* The value of a property element of a plain property (<Page.Toolbar>): one object, the same
+	 * rule as a content property that holds one object, and the same error. Children[0] used to be
+	 * taken blindly: <A/><B/> lost B, text before an element was built as a class named "",
+	 * an element before text lost the text.
+	 * Empty (<Page.Toolbar/>) - null, the property is not set; the collection and dictionary
+	 * branches of PropertyDescriptor.BuildElement treat an empty element the same way.
+	 * Text alone never comes here: BuildElement takes it for every kind of property.
+	 */
 	public static Object? GetNodeValue(NodeBuilder builder, XamlNode node)
 	{
-		if (node.IsSimpleContent)
-			return node.SimpleContent;
-		if (node.Name.Contains('.'))
+		if (!node.HasChildren)
+			return null;
+		Object? value = null;
+		foreach (var ch in node.Children.Value)
 		{
-			var ch = node.Children.Value[0];
-			return builder.BuildNode(ch);
+			var chObj = builder.BuildChild(ch);
+			if (chObj == null)
+				continue;
+			if (value != null)
+				throw builder.SecondChild($"Property element '{node.Name}'", ch);
+			value = chObj;
 		}
-		return node.SimpleContent;
+		return value;
 	}
 
 

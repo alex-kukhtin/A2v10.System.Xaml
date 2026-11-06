@@ -54,3 +54,4 @@ Fixtures live in `A2v10.System.Xaml.Tests/TestFiles`. Coverage helpers: `codecov
   implemented yet. The point is not tidier output: that command is the feedback loop of an
   LLM writing views, and an error it cannot locate is an error the model tries to find by
   guessing — with edits landing in the wrong place and the same failure reported again.
+- [TODO.md](TODO.md) — open defects (none now) and review items already rejected.

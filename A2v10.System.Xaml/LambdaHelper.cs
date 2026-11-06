@@ -30,7 +30,7 @@ public static class LambdaHelper
 		{
 			var argType = args[0].ParameterType;
 
-			result.AddCollection = Expression.Lambda<Action<Object, Object>?>(
+			var add = Expression.Lambda<Action<Object, Object>>(
 				Expression.Call(
 					Expression.Convert(inst, propType),
 					mtdAdd,
@@ -42,6 +42,7 @@ public static class LambdaHelper
 				inst,
 				argPrm
 			).Compile();
+			result.AddCollection = TypedItem(add, propType, argType);
 		} 
 		else if (args.Length == 2)
 		{
@@ -70,6 +71,25 @@ public static class LambdaHelper
 			result.AddDictionary = KeyFromText(add, propType, keyType);
 		}
 		return result;
+	}
+
+	/* Every child of a collection goes through here - a content property and a property element
+	 * alike - so the item type is checked here once. Text is a child too, and text in a typed
+	 * collection (<Block>text<Span/></Block>) was InvalidCastException from the compiled Convert.
+	 */
+	static Action<Object, Object> TypedItem(Action<Object, Object> add, Type collType, Type itemType)
+	{
+		if (itemType == typeof(Object))
+			return add;
+		return (coll, item) =>
+		{
+			if (!itemType.IsInstanceOfType(item))
+			{
+				var what = item is String ? "text" : $"<{item.GetType().Name}>";
+				throw new XamlException($"{collType.Name} holds {itemType.Name}; {what} does not fit");
+			}
+			add(coll, item);
+		};
 	}
 
 	/* x:Key is always text, and the key of the dictionary may be anything: the text is converted
