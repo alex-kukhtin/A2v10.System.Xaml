@@ -38,15 +38,15 @@ public record PropertyDescriptor
 		if (children.Exists(ch => ch.Name == dictName))
 		{
 			if (children.Count > 1)
-				throw new XamlException($"Property element '{node.Name}': <{dictName}> must be its only child; a second child{NodeBuilder.At(children[1])}.");
-			if (children[0].HasChildren)
-				AddToDictionary(builder, dict, children[0]);
+				throw new XamlException($"Element '{node.Name}': <{dictName}> must be its only child; a second child{NodeBuilder.At(children[1])}.");
+			// no HasChildren test: it is false for text alone, and <ResourceDictionary>text</..> was dropped
+			AddToDictionary(builder, dict, children[0]);
 			return;
 		}
 		foreach (var nd in children)
 		{
 			if (nd is XamlTextContent)
-				throw new XamlException($"Property element '{node.Name}' holds keyed elements; text{NodeBuilder.At(nd)}.");
+				throw new XamlException($"Element '{node.Name}' holds keyed elements; text{NodeBuilder.At(nd)}.");
 			if (!nd.Properties.TryGetValue("Key", out var key) || key is not SpecialPropertyDescriptor spec)
 				throw new XamlException($"Property 'Key' not found in node '{nd.Name}'");
 			var dVal = builder.BuildNode(nd);

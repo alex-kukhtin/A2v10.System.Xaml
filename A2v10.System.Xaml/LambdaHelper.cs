@@ -79,8 +79,6 @@ public static class LambdaHelper
 	 */
 	static Action<Object, Object> TypedItem(Action<Object, Object> add, Type collType, Type itemType)
 	{
-		if (itemType == typeof(Object))
-			return add;
 		return (coll, item) =>
 		{
 			if (!itemType.IsInstanceOfType(item))

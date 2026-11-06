@@ -158,7 +158,7 @@ public class PropertyElementChildren
                 </Page.Resources>
             </Page>
             """);
-        Assert.AreEqual("Property element 'Page.Resources' holds keyed elements; text at line 3, position 29.", ex.Message);
+        Assert.AreEqual("Element 'Page.Resources' holds keyed elements; text at line 3, position 29.", ex.Message);
     }
 
     [TestMethod]
@@ -185,7 +185,7 @@ public class PropertyElementChildren
                 </Page.Resources>
             </Page>
             """);
-        Assert.AreEqual("Property element 'Page.Resources': <ResourceDictionary> must be its only child; a second child at line 6, position 10.", ex.Message);
+        Assert.AreEqual("Element 'Page.Resources': <ResourceDictionary> must be its only child; a second child at line 6, position 10.", ex.Message);
     }
 
     [TestMethod]
@@ -202,7 +202,60 @@ public class PropertyElementChildren
                 </Page.Resources>
             </Page>
             """);
-        Assert.AreEqual("Property element 'Page.Resources': <ResourceDictionary> must be its only child; a second child at line 4, position 10.", ex.Message);
+        Assert.AreEqual("Element 'Page.Resources': <ResourceDictionary> must be its only child; a second child at line 4, position 10.", ex.Message);
+    }
+
+    [TestMethod]
+    public void TextInWrapper()
+    {
+        // was: dropped silently - the wrapper was entered only when it had element children
+        var ex = ParseThrows($"""
+            <Page xmlns="{MockNs}">
+                <Page.Resources>
+                    <ResourceDictionary>text</ResourceDictionary>
+                </Page.Resources>
+            </Page>
+            """);
+        Assert.AreEqual("Element 'ResourceDictionary' holds keyed elements; text at line 3, position 29.", ex.Message);
+    }
+
+    [TestMethod]
+    public void ElementInTypedCollection()
+    {
+        var ex = ParseThrows($"""<Block xmlns="{MockNs}"><ResourceDictionary/></Block>""");
+        Assert.AreEqual("UIElementCollection holds UIElementBase; <ResourceDictionary> does not fit", ex.Message);
+    }
+
+    // a skipped namespace yields no object: not a child to count, not an item to add
+    static readonly XamlServicesOptions SkipOptions = new([new NamespaceDef("urn:skip", false, "", "Self", true)]);
+
+    [TestMethod]
+    public void SkippedChildInPlainProperty()
+    {
+        var page = XamlServices.Parse<Page>($"""
+            <Page xmlns="{MockNs}" xmlns:s="urn:skip">
+                <Page.Toolbar>
+                    <Toolbar/>
+                    <s:Note/>
+                </Page.Toolbar>
+            </Page>
+            """, SkipOptions);
+        Assert.IsInstanceOfType<Toolbar>(page.Toolbar);
+    }
+
+    [TestMethod]
+    public void SkippedChildInCollectionProperty()
+    {
+        // was: "Build node failed"
+        var page = XamlServices.Parse<Page>($"""
+            <Page xmlns="{MockNs}" xmlns:s="urn:skip">
+                <Page.Children>
+                    <Span/>
+                    <s:Note/>
+                </Page.Children>
+            </Page>
+            """, SkipOptions);
+        Assert.HasCount(1, page.Children);
     }
 
     [TestMethod]

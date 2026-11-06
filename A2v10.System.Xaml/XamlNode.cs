@@ -79,8 +79,6 @@ public class XamlNode(String name)
 	 */
 	public static Object? GetNodeValue(NodeBuilder builder, XamlNode node)
 	{
-		if (!node.HasChildren)
-			return null;
 		Object? value = null;
 		foreach (var ch in node.Children.Value)
 		{
